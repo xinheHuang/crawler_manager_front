@@ -19,9 +19,12 @@ methods.forEach((method) => {
         return Promise.reject(message);
       }
     } catch (error) {
+      console.log(error.response)
       // if (!error instanceof ApiError) {  //非逻辑错误
         const {status} = error.response
-
+      EventBus.$emit('errorDialog', {
+        text: error.response.data,
+      })
       return Promise.reject(error);
     }
   }

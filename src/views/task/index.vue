@@ -1,10 +1,18 @@
 <template>
-  <div>
-    <h1>name</h1>
+  <div class="task-info">
+    名称：<input v-model="tempTask.name" :disabled="!isEditing">
+    间隔：<input v-model="tempTask.interval" :disabled="!isEditing">
+    <button @click="saveTask()" v-show="isEditing">保存</button>
+    <button @click="cancelEdit()" v-show="isEditing">取消</button>
+    <button @click="goEdit()" v-show="!isEditing">编辑</button>
     <div class="task">
-      <subTask v-for="subtask in subTasks"class="subTask"></subTask>
+      <subTask :key="subtask.subtaskId" v-for="subtask in task.subTasks" class="subTask"
+               :subTask="subtask"
+               :servers="servers"
+               :subTaskSave="subTaskSave"
+               :scripts="scripts"/>
       <div class="add-task">
-        <button>添加任务</button>
+        <button @click="createSubTask()">添加子任务</button>
       </div>
     </div>
   </div>
@@ -14,15 +22,52 @@
 
   export default {
     data() {
-      return {}
+      return {
+        task: {},
+        servers: [],
+        scripts: [],
+        tempTask:{},
+        isEditing:false
+      }
     },
     props: ['taskId'],
     mounted() {
-      //get all subtasks
-      this.$http(`/api/task/${this.taskId}/subtasks`)
-        .then((subTasks) => {
-          this.subTasks = subTasks
+      Promise.all([this.$http.get('/api/servers'), this.$http.get('/api/scripts')])
+        .then(([servers, scripts]) => {
+          this.servers = servers
+          this.scripts = scripts
+          this.getTask()
         })
+
+    },
+    methods: {
+      goEdit(){
+        this.isEditing=true;
+      },
+      async saveTask(){
+        await this.$http.put(`/api/task/${this.taskId}`,this.tempTask)
+        await this.getTask();
+        this.isEditing=false;
+      },
+      cancelEdit(){
+        this.isEditing=false;
+        this.tempTask={...this.task}
+      },
+      async getTask() {
+        await this.$http.get(`/api/task/${this.taskId}`)
+          .then((task) => {
+            this.task = task
+            this.tempTask={...task}
+          })
+      },
+      async createSubTask() {
+        const subTaskId = await this.$http.post(`/api/task/${this.taskId}/subtasks`)
+        await this.getTask()
+      },
+      async subTaskSave(subtask){
+        await this.$http.put(`/api/subtask/${subtask.subtaskId}`,subtask)
+        await this.getTask();
+      }
     },
     components: {
       subTask
@@ -31,6 +76,12 @@
 </script>
 <style scoped
        lang="less">
+  .task-info{
+    font-size: 24px;
+    >* {
+        font-size: 24px
+    }
+  }
   .task {
     display: flex;
     flex-wrap: wrap;

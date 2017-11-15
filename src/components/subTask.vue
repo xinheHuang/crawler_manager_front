@@ -5,27 +5,38 @@
         <div>
           <span>子任务名称</span>
           <input :disabled="!isEditing"
-                 :model="tempTask.name" />
+                 v-model="tempTask.name"/>
         </div>
         <div>
           <span>执行顺序</span>
           <input :disabled="!isEditing"
-                 :model="tempTask.order" />
+                 type="number"
+                 min="0"
+                 v-model="tempTask.order"/>
         </div>
         <div>
           <span>服务器</span>
-          <input :disabled="!isEditing"
-                 :model="tempTask.server" />
+
+          <select :disabled="!isEditing"
+                  v-model="tempTask.serverId">
+            <option disabled :value="undefined">请选择一个服务器</option>
+            <option v-for="server in servers" :value="server.serverId">{{server.name}} {{server.type}}</option>
+          </select>
+
         </div>
         <div>
           <span>脚本</span>
-          <input :disabled="!isEditing"
-                 :model="tempTask.script" />
+
+          <select :disabled="!isEditing"
+                  v-model="tempTask.scriptId">
+            <option disabled :value="undefined">请选择一个爬虫脚本</option>
+            <option v-for="script in scripts" :value="script.scriptId">{{script.name}} {{script.fileName}}</option>
+          </select>
         </div>
         <div>
           <span>额外参数</span>
           <input :disabled="!isEditing"
-                 :model="tempTask.args" />
+                 v-model="tempTask.args"/>
         </div>
 
         <!--op-->
@@ -48,7 +59,14 @@
 <script>
   export default {
     props: {
-      subTask: Object
+      subTask: Object,
+      servers: Array,
+      scripts: Array,
+      subTaskSave: Function,
+      edit: {
+        type: Boolean,
+        default: false,
+      }
     },
     data() {
       return {
@@ -64,11 +82,14 @@
         this.tempTask = { ...this.subTask }
         this.isEditing = false
       },
-      finishEdit() {
-        //todo
+      async finishEdit() {
+        await this.subTaskSave(this.tempTask)
+        this.isEditing = false
+        this.tempTask = { ...this.subTask }
       }
     },
     mounted() {
+      console.log(this.subTask)
       this.tempTask = { ...this.subTask }
     }
   }
@@ -90,7 +111,7 @@
         > span {
           width: 30%;
         }
-        > input {
+        > input, select {
           flex-grow: 1;
           margin-right: 40px;
           font-size: 24px;
