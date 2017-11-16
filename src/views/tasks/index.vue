@@ -2,7 +2,7 @@
   <div>
     <h1>任务管理器</h1>
     <div class="tasks">
-      <task v-for="task in tasks" class="task" :task="task"></task>
+      <task v-for="task in tasks" class="task" :task="task" @startTask="startTask(task)" @stopTask="stopTask(task)"></task>
       <div class="add-task">
         <button @click="addTask()">添加任务</button>
       </div>
@@ -52,6 +52,15 @@
       },
       async getTasks() {
         this.tasks = await this.$http.get('/api/tasks')
+      },
+      async startTask(task){
+        await this.$http.post(`/api/task/${task.taskId}/start`)
+        task.status='START'
+      },
+
+      async stopTask(task){
+        await this.$http.post(`/api/task/${task.taskId}/stop`)
+        task.status='STOP'
       }
     },
     mounted() {

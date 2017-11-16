@@ -8,9 +8,9 @@
       <div class="content">
         <div class="console"></div>
         <div class="op">
-          <button>开始任务</button>
-          <button>停止任务</button>
-          <button @click="configTask()">编辑任务</button>
+          <button v-show="task.status!=='START'" @click="$emit('startTask')">开始任务</button>
+          <button v-show="task.status=='START'" @click="$emit('stopTask')">停止任务</button>
+          <button v-show="task.status!=='START'" @click="configTask()">编辑任务</button>
         </div>
       </div>
     </div>
@@ -20,7 +20,7 @@
 <script>
   export default {
     props: {
-      task: Object
+      task: Object,
     },
     methods:{
       configTask(){

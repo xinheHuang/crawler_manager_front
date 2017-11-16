@@ -23,7 +23,8 @@ methods.forEach((method) => {
       // if (!error instanceof ApiError) {  //非逻辑错误
         const {status} = error.response
       EventBus.$emit('errorDialog', {
-        text: error.response.data,
+        title:'服务器错误',
+        text: error.response.data.message,
       })
       return Promise.reject(error);
     }

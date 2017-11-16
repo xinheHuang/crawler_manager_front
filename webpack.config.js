@@ -51,6 +51,7 @@ module.exports = {
     historyApiFallback: true,
     noInfo: true,
     overlay: true,
+    port: 9090,
     proxy: {
       '/api':{
         target:'http://127.0.0.1:3000',
