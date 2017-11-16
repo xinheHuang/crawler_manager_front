@@ -2,7 +2,11 @@
   <div>
     <h1>任务管理器</h1>
     <div class="tasks">
-      <task v-for="task in tasks" class="task" :task="task" @startTask="startTask(task)" @stopTask="stopTask(task)"></task>
+      <task v-for="task in tasks"
+            class="task" :task="task" @startTask="startTask(task)"
+            @stopTask="stopTask(task)"
+            :logs="messages[task.taskId]"
+      ></task>
       <div class="add-task">
         <button @click="addTask()">添加任务</button>
       </div>
@@ -19,6 +23,7 @@
     data() {
       return {
         tasks: Array,
+        messages:{}
       }
     },
     methods: {
@@ -55,16 +60,33 @@
       },
       async startTask(task){
         await this.$http.post(`/api/task/${task.taskId}/start`)
-        task.status='START'
+        task.status='start'
       },
 
       async stopTask(task){
         await this.$http.post(`/api/task/${task.taskId}/stop`)
-        task.status='STOP'
+        task.status='stop'
       }
     },
     mounted() {
       this.getTasks()
+      this.ws=new WebSocket('ws://localhost:3000');
+      this.ws.onmessage=({data})=> {
+        console.log(data)
+        try {
+        const {taskId,message} = JSON.parse(data.message);
+          if (!this.messages[taskId]){
+            this.messages[taskId]=[]
+          }
+          this.messages[taskId].push(message);
+          if ( this.messages[taskId].length>10){
+            this.messages[taskId].shift();
+          }
+          console.log(this.messages)
+      }catch(error){
+          console.log(error)
+        }
+      }
     }
   }
 </script>

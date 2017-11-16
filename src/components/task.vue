@@ -6,11 +6,13 @@
         <span class="info">间隔：{{task.interval}}</span>
       </div>
       <div class="content">
-        <div class="console"></div>
+        <div class="console">
+          <p v-for="log in logs" style="margin-bottom:10px">{{log}}</p>
+        </div>
         <div class="op">
-          <button v-show="task.status!=='START'" @click="$emit('startTask')">开始任务</button>
-          <button v-show="task.status=='START'" @click="$emit('stopTask')">停止任务</button>
-          <button v-show="task.status!=='START'" @click="configTask()">编辑任务</button>
+          <button v-show="task.status!=='start'" @click="$emit('startTask')">开始任务</button>
+          <button v-show="task.status=='start'" @click="$emit('stopTask')">停止任务</button>
+          <button v-show="task.status!=='start'" @click="configTask()">编辑任务</button>
         </div>
       </div>
     </div>
@@ -21,6 +23,7 @@
   export default {
     props: {
       task: Object,
+      logs:Array
     },
     methods:{
       configTask(){
@@ -55,6 +58,7 @@
 
   .console {
     align-self: stretch;
+    overflow: auto;
     flex-grow: 1;
     border: solid 1px gray;
     margin-right: 50px;
