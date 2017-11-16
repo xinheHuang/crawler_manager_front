@@ -7,7 +7,12 @@
       </div>
       <div class="content">
         <div class="console">
-          <p v-for="log in logs" style="margin-bottom:10px">{{log}}</p>
+          <p v-for="log in logs" style="margin-bottom:10px">
+            <span style="color: red">{{log.scriptName}}</span>
+            {{log.message}}
+            ===========================================================
+          </p>
+
         </div>
         <div class="op">
           <button v-show="task.status!=='start'" @click="$emit('startTask')">开始任务</button>
@@ -28,6 +33,11 @@
     methods:{
       configTask(){
         this.$router.push({path:`/task/${this.task.taskId}`})
+      }
+    },
+    watch:{
+      logs(){
+        console.log(this.logs)
       }
     }
   }

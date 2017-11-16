@@ -71,14 +71,22 @@
     mounted() {
       this.getTasks()
       this.ws=new WebSocket('ws://localhost:3000');
+      function escapeUnicode(str) {
+        return str.replace(/[^\0-~]/g, function(ch) {
+          return "\\u" + ("0000" + ch.charCodeAt().toString(16)).slice(-4);
+        });
+      }
       this.ws.onmessage=({data})=> {
-        console.log(data)
+//        console.log(data)
         try {
-        const {taskId,message} = JSON.parse(data.message);
+          const {taskId,message,scriptName} = JSON.parse(data);
           if (!this.messages[taskId]){
-            this.messages[taskId]=[]
+            this.$set(this.messages,taskId,[])
           }
-          this.messages[taskId].push(message);
+          this.messages[taskId].push({
+            scriptName,
+            message
+          });
           if ( this.messages[taskId].length>10){
             this.messages[taskId].shift();
           }
