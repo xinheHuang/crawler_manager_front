@@ -10,6 +10,7 @@
                :subTask="subtask"
                :servers="servers"
                :subTaskSave="subTaskSave"
+               @remove="subTaskRemove(subtask.subtaskId)"
                :scripts="scripts"/>
       <div class="add-task">
         <button @click="createSubTask()">添加子任务</button>
@@ -41,6 +42,10 @@
 
     },
     methods: {
+      async subTaskRemove(id){
+        await this.$http.delete(`/api/subtask/${subtask.subtaskId}`)
+        await this.getTask();
+      },
       goEdit(){
         this.isEditing=true;
       },

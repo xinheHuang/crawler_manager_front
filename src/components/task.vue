@@ -18,6 +18,7 @@
           <button v-show="task.status!=='start'" @click="$emit('startTask')">开始任务</button>
           <button v-show="task.status=='start'" @click="$emit('stopTask')">停止任务</button>
           <button v-show="task.status!=='start'" @click="configTask()">编辑任务</button>
+          <button v-show="task.status!=='start'" @click="$emit('deleteTask')">删除任务</button>
         </div>
       </div>
     </div>

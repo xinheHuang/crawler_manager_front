@@ -50,6 +50,7 @@
           <button v-show="isEditing"
                   @click="cancelEdit()">取消
           </button>
+          <button @click="$emit('remove')">删除子任务</button>
         </div>
       </div>
     </div>
@@ -63,6 +64,7 @@
       servers: Array,
       scripts: Array,
       subTaskSave: Function,
+      subTaskRemove:Function,
       edit: {
         type: Boolean,
         default: false,
