@@ -43,7 +43,7 @@
     },
     methods: {
       async subTaskRemove(id){
-        await this.$http.delete(`/api/subtask/${subtask.subtaskId}`)
+        await this.$http.delete(`/api/subtask/${id}`)
         await this.getTask();
       },
       goEdit(){

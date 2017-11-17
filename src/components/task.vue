@@ -7,10 +7,10 @@
       </div>
       <div class="content">
         <div class="console">
-          <p v-for="log in logs" style="margin-bottom:10px">
+          <p v-for="log in logs" style="margin-bottom:10px;text-align: left">
             <span style="color: red">{{log.scriptName}}</span>
             {{log.message}}
-            ===========================================================
+            <span style="display: block">===================</span>
           </p>
 
         </div>
