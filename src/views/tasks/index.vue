@@ -35,11 +35,9 @@
         const name = await this.$swal({
           text: '请输入任务名称',
           content: 'input',
-          button: {
-            text: '创建',
-            closeModal: false,
-          },
+          buttons: true,
         })
+        if (name ===null) return
         if (!name) {
           await this.$swal({
             text: '必须输入名称',
@@ -81,7 +79,7 @@
       console.log()
       let wsUrl;
       if (process.env.NODE_ENV === 'development') {
-        wsUrl = 'localhost:3000'
+        wsUrl = 'localhost:9000'
       } else{
         wsUrl=`${window.location.hostname}:${window.location.port}`
       }
