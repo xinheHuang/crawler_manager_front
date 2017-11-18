@@ -6,6 +6,7 @@
 
 <script>
   import EventBus from './eventBus'
+  import * as types from './store/mutation-types'
   export default {
     mounted() {
       EventBus.$on('errorDialog', ({title = '错误', text = '', callback}) => {
@@ -22,6 +23,7 @@
           })
       })
 
+      this.$store.dispatch('connect')
     }
   }
 </script>

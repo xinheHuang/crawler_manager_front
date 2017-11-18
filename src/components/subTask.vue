@@ -1,6 +1,12 @@
 <template>
   <div>
     <div class="content">
+      <div class="console">
+        <p v-for="log in logs" style="margin-bottom:10px;text-align: left">
+          {{log}}
+          <span style="display: block">===================</span>
+        </p>
+      </div>
       <div class="table">
         <div>
           <span>子任务名称</span>
@@ -68,7 +74,8 @@
       edit: {
         type: Boolean,
         default: false,
-      }
+      },
+      logs:Array
     },
     data() {
       return {
@@ -102,7 +109,18 @@
        lang="less">
   .content {
     padding: 20px 25px;
+    display: flex;
+    .console {
+      width: 50%;
+      align-self: stretch;
+      overflow: auto;
+      font-size: 18px;
+      flex-grow: 1;
+      border: solid 1px gray;
+      margin-right: 50px;
+    }
     .table {
+      width: 50%;
       display: flex;
       flex-direction: column;
       border: solid 1px gray;

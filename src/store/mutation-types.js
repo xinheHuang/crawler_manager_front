@@ -1,0 +1,7 @@
+/**
+ * Created by Xinhe on 2017/11/18.
+ */
+
+export const MESSAGE_RECEIVE = 'MESSAGE_RECEIVE'
+export const EMPTY_MESSAGES = 'EMPTY_MESSAGES'
+export const CHANGE_SOCKET_STATUS = 'CHANGE_SOCKET_STATUS'

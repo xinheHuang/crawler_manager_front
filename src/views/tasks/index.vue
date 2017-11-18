@@ -8,7 +8,7 @@
             @startTask="startTask(task)"
             @stopTask="stopTask(task)"
             @deleteTask="removeTask(task,index)"
-            :logs="messages[task.taskId]"
+            :logs="taskMessages[task.taskId]"
       ></task>
       <div class="add-task">
         <button @click="addTask()">添加任务</button>
@@ -26,7 +26,11 @@
     data() {
       return {
         tasks: Array,
-        messages: {}
+      }
+    },
+    computed:{
+      taskMessages(){
+        return this.$store.state.messages.taskMessages
       }
     },
     methods: {
@@ -76,41 +80,6 @@
     },
     mounted() {
       this.getTasks()
-      console.log()
-      let wsUrl;
-      if (process.env.NODE_ENV === 'development') {
-        wsUrl = 'localhost:9000'
-      } else{
-        wsUrl=`${window.location.hostname}:${window.location.port}`
-      }
-      this.ws = new WebSocket(`ws://${wsUrl}`)
-
-      function escapeUnicode(str) {
-        return str.replace(/[^\0-~]/g, function (ch) {
-          return '\\u' + ('0000' + ch.charCodeAt()
-            .toString(16)).slice(-4)
-        })
-      }
-
-      this.ws.onmessage = ({ data }) => {
-//        console.log(data)
-        try {
-          const { taskId, message, scriptName } = JSON.parse(data)
-          if (!this.messages[taskId]) {
-            this.$set(this.messages, taskId, [])
-          }
-          this.messages[taskId].unshift({
-            scriptName,
-            message
-          })
-          if (this.messages[taskId].length > 10) {
-            this.messages[taskId].pop()
-          }
-          console.log(this.messages)
-        } catch (error) {
-          console.log(error)
-        }
-      }
     }
   }
 </script>

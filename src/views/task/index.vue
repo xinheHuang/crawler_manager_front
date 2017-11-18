@@ -11,6 +11,7 @@
                :servers="servers"
                :subTaskSave="subTaskSave"
                @remove="subTaskRemove(subtask.subtaskId)"
+               :logs="subtaskMessages[subtask.subtaskId]"
                :scripts="scripts"/>
       <div class="add-task">
         <button @click="createSubTask()">添加子任务</button>
@@ -40,6 +41,11 @@
           this.getTask()
         })
 
+    },
+    computed:{
+      subtaskMessages(){
+        return this.$store.state.messages.subtaskMessages
+      }
     },
     methods: {
       async subTaskRemove(id){
@@ -91,7 +97,7 @@
     display: flex;
     flex-wrap: wrap;
     .subTask {
-      width: 50%;
+      width: 100%;
       /*padding: 20px 50px;*/
       margin-bottom: 40px;
     }
