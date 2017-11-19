@@ -2,13 +2,15 @@
   <div>
     <h1>任务管理器</h1>
     <div class="tasks">
-      <task v-for="(task,index) in tasks"
+      <task v-for="task in tasks"
             class="task"
             :task="task"
-            @startTask="startTask(task)"
-            @stopTask="stopTask(task)"
-            @deleteTask="removeTask(task,index)"
-            :logs="taskMessages[task.taskId]"
+            :key="task.taskId"
+            @startTask="startTask(task.taskId)"
+            @stopTask="stopTask(task.taskId)"
+            @deleteTask="removeTask(task.taskId)"
+            @clear="clearConsole(task.taskId)"
+            :logs="getMessageName(taskMessages[task.taskId])"
       ></task>
       <div class="add-task">
         <button @click="addTask()">添加任务</button>
@@ -18,68 +20,68 @@
 </template>
 <script>
   import task from '../../components/task.vue'
-
+  import * as types from '../../store/mutation-types'
   export default {
     components: {
       task
     },
     data() {
-      return {
-        tasks: Array,
-      }
+      return {}
     },
-    computed:{
-      taskMessages(){
+    computed: {
+      taskMessages() {
         return this.$store.state.messages.taskMessages
-      }
+      },
+      tasks() {
+        return this.$store.state.tasks.tasks
+      },
+
     },
     methods: {
+      getMessageName(messages = []){
+        return messages.map(({subtaskId,message})=> ({
+          subtaskName: subtaskId ? this.$store.getters.subTasks[subtaskId].name : null,
+          message,
+        }))
+      },
       async addTask() {
-        //todo
         const name = await this.$swal({
-          text: '请输入任务名称',
-          content: 'input',
-          buttons: true,
-        })
-        if (name ===null) return
+                                        text: '请输入任务名称',
+                                        content: 'input',
+                                        buttons: true,
+                                      })
+        if (name === null) return
         if (!name) {
           await this.$swal({
-            text: '必须输入名称',
-            icon: 'error',
-          })
+                             text: '必须输入名称',
+                             icon: 'error',
+                           })
           this.addTask()
         } else {
-          try {
-            const taskId = await this.$http.post('/api/tasks', { name })
-            this.$swal.stopLoading()
-            this.$swal.close()
-            this.$router.push({ path: `/task/${taskId}` })
-          }
-          catch (e) {
-            this.$swal('Oh noes!', 'The AJAX request failed!', 'error')
-          }
+          const taskId = await this.$store.dispatch('createTask', {name})
+          this.$swal.stopLoading()
+          this.$swal.close()
+          this.$router.push({path: `/task/${taskId}`})
         }
       },
-      async getTasks() {
-        this.tasks = await this.$http.get('/api/tasks')
-      },
-      async startTask(task) {
-        await this.$http.post(`/api/task/${task.taskId}/start`)
-        task.status = 'start'
+      async startTask(taskId) {
+        await this.$store.dispatch('startTask',taskId)
       },
 
-      async stopTask(task) {
-        await this.$http.post(`/api/task/${task.taskId}/stop`)
-        task.status = 'stop'
+      async stopTask(taskId) {
+        await this.$store.dispatch('stopTask',taskId)
       },
 
-      async removeTask(task,index) {
-        await this.$http.delete(`/api/task/${task.taskId}`)
-        this.tasks.splice(index,1);
+      async removeTask(taskId) {
+        await this.$store.dispatch('deleteTask', taskId)
+      },
+
+      clearConsole(taskId){
+        this.$store.commit(types.CLEAR_TASK_MESSAGES,taskId)
       }
     },
     mounted() {
-      this.getTasks()
+
     }
   }
 </script>

@@ -1,11 +1,17 @@
 <template>
   <div>
     <div class="content">
-      <div class="console">
-        <p v-for="log in logs" style="margin-bottom:10px;text-align: left">
-          {{log}}
-          <span style="display: block">===================</span>
-        </p>
+      <div style="display: flex">
+        <div class="console">
+          <p v-for="log in logs"
+             style="margin-bottom:10px;text-align: left">
+            {{log}}
+            <span style="display: block">===================</span>
+          </p>
+        </div>
+        <div class="status">
+          <span>脚本状态：{{tempTask.status}}</span>
+        </div>
       </div>
       <div class="table">
         <div>
@@ -25,8 +31,12 @@
 
           <select :disabled="!isEditing"
                   v-model="tempTask.serverId">
-            <option disabled :value="undefined">请选择一个服务器</option>
-            <option v-for="server in servers" :value="server.serverId">{{server.name}} {{server.type}}</option>
+            <option disabled
+                    :value="undefined">请选择一个服务器
+            </option>
+            <option v-for="server in servers"
+                    :value="server.serverId">{{server.name}} {{server.type}}
+            </option>
           </select>
 
         </div>
@@ -35,8 +45,12 @@
 
           <select :disabled="!isEditing"
                   v-model="tempTask.scriptId">
-            <option disabled :value="undefined">请选择一个爬虫脚本</option>
-            <option v-for="script in scripts" :value="script.scriptId">{{script.name}} {{script.fileName}}</option>
+            <option disabled
+                    :value="undefined">请选择一个爬虫脚本
+            </option>
+            <option v-for="script in scripts"
+                    :value="script.scriptId">{{script.name}} {{script.fileName}}
+            </option>
           </select>
         </div>
         <div>
@@ -58,24 +72,27 @@
           </button>
           <button @click="$emit('remove')">删除子任务</button>
         </div>
+        <button @click="$emit('clear')">清空console</button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+
+
   export default {
     props: {
       subTask: Object,
-      servers: Array,
-      scripts: Array,
+      servers: Object,
+      scripts: Object,
       subTaskSave: Function,
-      subTaskRemove:Function,
+      subTaskRemove: Function,
       edit: {
         type: Boolean,
         default: false,
       },
-      logs:Array
+      logs: Array
     },
     data() {
       return {
@@ -88,18 +105,21 @@
         this.isEditing = true
       },
       cancelEdit() {
-        this.tempTask = { ...this.subTask }
+        this.tempTask = {...this.subTask}
         this.isEditing = false
       },
       async finishEdit() {
         await this.subTaskSave(this.tempTask)
         this.isEditing = false
-        this.tempTask = { ...this.subTask }
       }
     },
-    mounted() {
-      console.log(this.subTask)
-      this.tempTask = { ...this.subTask }
+    watch: {
+      subTask: {
+        handler(subTask) {
+          this.tempTask = {...subTask}
+        },
+        immediate: true
+      }
     }
   }
 
@@ -110,17 +130,25 @@
   .content {
     padding: 20px 25px;
     display: flex;
-    .console {
+    >div{
       width: 50%;
       align-self: stretch;
-      overflow: auto;
-      font-size: 18px;
-      flex-grow: 1;
+      padding: 30px;
       border: solid 1px gray;
       margin-right: 50px;
+      .console {
+        overflow: auto;
+        font-size: 18px;
+        border: solid 1px gray;
+        margin-right: 20px;
+        flex-grow: 1;
+      }
+      .status{
+        flex-shrink: 0;
+      }
     }
     .table {
-      width: 50%;
+      flex-grow: 1;
       display: flex;
       flex-direction: column;
       border: solid 1px gray;

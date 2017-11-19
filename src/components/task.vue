@@ -8,17 +8,19 @@
       <div class="content">
         <div class="console">
           <p v-for="log in logs" style="margin-bottom:10px;text-align: left" >
-            <span style="color: red">{{log.scriptName}}</span>
+            <span style="color: red">{{log.subtaskName}}</span>
             {{log.message}}
             <span style="display: block">===================</span>
           </p>
 
         </div>
         <div class="op">
+          <span>任务状态：{{task.status}}</span>
           <button v-show="task.status!=='start'" @click="$emit('startTask')">开始任务</button>
           <button v-show="task.status=='start'" @click="$emit('stopTask')">停止任务</button>
-          <button v-show="task.status!=='start'" @click="configTask()">编辑任务</button>
+          <button @click="configTask()">查看任务详情</button>
           <button v-show="task.status!=='start'" @click="$emit('deleteTask')">删除任务</button>
+          <button @click="$emit('clear')">清空console</button>
         </div>
       </div>
     </div>
@@ -36,11 +38,6 @@
         this.$router.push({path:`/task/${this.task.taskId}`})
       }
     },
-    watch:{
-      logs(){
-        console.log(this.logs)
-      }
-    }
   }
 
 </script>
@@ -72,13 +69,17 @@
     overflow: auto;
     flex-grow: 1;
     border: solid 1px gray;
-    margin-right: 50px;
+    margin-right: 30px;
   }
 
   .op {
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
+    span{
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
   }
 
   .op button {

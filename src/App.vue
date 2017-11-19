@@ -24,6 +24,9 @@
       })
 
       this.$store.dispatch('connect')
+      this.$store.dispatch('getTasks')
+      this.$store.dispatch('getServers')
+      this.$store.dispatch('getScripts')
     }
   }
 </script>
