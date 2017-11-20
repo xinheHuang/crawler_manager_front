@@ -54,19 +54,15 @@ const actions = {
 
   async startTask({dispatch}, taskId) {
     await TaskApis.startTask(taskId)
-    // await dispatch('getTask', taskId)
-    //todo 服务器需要发送一条广播 通知所有网页任务开始 刷新
   },
 
   async resumeTask({dispatch},taskId){
     await TaskApis.resumeTask(taskId)
-    // await dispatch('getTask', taskId)
   },
 
 
   async stopTask({dispatch}, taskId) {
     await TaskApis.stopTask(taskId)
-    await dispatch('getTask', taskId)
   },
 
 
@@ -95,7 +91,19 @@ const actions = {
   async deleteSubTask({dispatch}, {taskId, subtaskId}) {
     await TaskApis.deleteSubTask(subtaskId)
     await dispatch('getTask', taskId)
-  }
+  },
+
+  async startSubTask({dispatch}, {taskId, subtaskId}) {
+    await TaskApis.startSubTask(subtaskId)
+    await dispatch('getTask', taskId)
+  },
+
+  async stopSubTask({dispatch}, {taskId, subtaskId}) {
+    await TaskApis.stopSubTask(subtaskId)
+    await dispatch('getTask', taskId)
+  },
+
+
 }
 
 const mapArray2ObjByKey = (arr, key) => arr.reduce((prev, item) =>

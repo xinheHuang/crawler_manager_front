@@ -11,6 +11,12 @@
         </div>
         <div class="status">
           <span>脚本状态：{{tempTask.status}}</span>
+          <button v-show="tempTask.status!=='start'"
+                  @click="$emit('start')">开始任务
+          </button>
+          <button v-show="tempTask.status=='start'"
+                  @click="$emit('stop')">停止任务
+          </button>
         </div>
       </div>
       <div class="table">
@@ -111,7 +117,8 @@
       async finishEdit() {
         await this.subTaskSave(this.tempTask)
         this.isEditing = false
-      }
+      },
+
     },
     watch: {
       subTask: {
@@ -129,6 +136,7 @@
        lang="less">
   .content {
     padding: 20px 25px;
+    height: 100%;
     display: flex;
     >div{
       width: 50%;
@@ -145,6 +153,12 @@
       }
       .status{
         flex-shrink: 0;
+        display: flex;
+        >*{
+          font-size: 20px;
+          margin-bottom: 10px;
+        }
+        flex-direction: column;
       }
     }
     .table {
