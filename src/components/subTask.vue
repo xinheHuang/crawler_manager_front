@@ -139,7 +139,7 @@
     height: 100%;
     display: flex;
     >div{
-      width: 50%;
+      width: calc(50% - 15px);
       align-self: stretch;
       flex-grow: 0;
       flex-shrink: 0;
@@ -164,7 +164,7 @@
       }
     }
     .table {
-      flex-grow: 1;
+      flex-grow: 0;
       display: flex;
       flex-direction: column;
       border: solid 1px gray;
@@ -176,8 +176,10 @@
           flex-shrink: 0;
           width: 30%;
         }
-        > input, select {
-          flex-grow: 1;
+        > input, select  {
+          width: 60%;
+          flex-grow: 0;
+          flex-shrink: 1;
           margin-right: 40px;
           font-size: 24px;
         }
