@@ -133,6 +133,8 @@
     >div{
       width: 50%;
       align-self: stretch;
+      flex-grow: 0;
+      flex-shrink: 0;
       padding: 30px;
       border: solid 1px gray;
       margin-right: 50px;
@@ -157,6 +159,7 @@
         font-size: 24px;
         margin: 20px 0;
         > span {
+          flex-shrink: 0;
           width: 30%;
         }
         > input, select {
