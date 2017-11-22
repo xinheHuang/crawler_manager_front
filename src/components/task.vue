@@ -3,7 +3,7 @@
     <div style="padding: 20px;height: 100%;display: flex;flex-direction: column; ">
       <div class="title">
         <span class="name">任务名称: {{task.name}}</span>
-        <span class="info">间隔：{{task.interval}}</span>
+        <span class="info">间隔：{{getDayHourMinuteFromTime(task.interval)}}</span>
       </div>
       <div class="content">
         <div class="console">
@@ -16,9 +16,10 @@
         </div>
         <div class="op">
           <span>任务状态：{{task.status}}</span>
-          <button v-show="task.status!=='start'" @click="$emit('startTask')">开始任务</button>
-          <button v-show="task.status=='start'" @click="$emit('stopTask')">停止任务</button>
+          <button @click="$emit('startTask')">开始任务</button>
+          <button @click="$emit('stopTask')">停止任务</button>
           <button @click="configTask()">查看任务详情</button>
+          <!--todo-->
           <button v-show="task.status!=='start'" @click="$emit('deleteTask')">删除任务</button>
           <button @click="$emit('clear')">清空console</button>
         </div>
@@ -28,15 +29,20 @@
 </template>
 
 <script>
+  import util from '../utils'
   export default {
     props: {
       task: Object,
       logs:Array
     },
     methods:{
+      getDayHourMinuteFromTime(time){
+        return util.getDayHourMinuteFromTime(time)
+      },
       configTask(){
         this.$router.push({path:`/task/${this.task.taskId}`})
-      }
+      },
+
     },
   }
 

@@ -58,6 +58,15 @@ export default {
 
   async deleteSubTask(subtaskId) {
     return await httpUtil.delete(`/api/subtask/${subtaskId}`)
-  }
+  },
+
+  async startSubTask(subtaskId) {
+    return await httpUtil.post(`/api/subtask/${subtaskId}/start`)
+  },
+
+  async stopSubTask(subtaskId) {
+    return await httpUtil.post(`/api/subtask/${subtaskId}/stop`)
+  },
+
 
 }
