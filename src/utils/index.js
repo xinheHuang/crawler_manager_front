@@ -5,9 +5,9 @@ export default {
   getDayHourMinute(time) {
     if (!time){
       return {
-        days:null,
-        hours:null,
-        minutes:null
+        days:0,
+        hours:0,
+        minutes:0
       }
     }
     const days = Math.floor(time / 86400)

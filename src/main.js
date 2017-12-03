@@ -4,6 +4,7 @@ import router from './router'
 import store from './store'
 import HttpUtil from './utils/httpUtil'
 import Swal from 'sweetalert'
+import './styles/common.css'
 
 Vue.prototype.$swal = Swal;
 Vue.prototype.$http = HttpUtil

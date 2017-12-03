@@ -1,15 +1,23 @@
 <template>
   <div class="task-info">
+    <label for="name">名称：</label><input id="name" v-model="tempWorkFlow.name"
+                                        :disabled="!isEditing">
 
-    名称：<input v-model="tempWorkFlow.name"
-              :disabled="!isEditing">
-    间隔：
-    <span v-if="!isEditing">{{getDayHourMinuteFromTime(tempWorkFlow.interval)}}</span>
-    <div class="interval-input"
-         v-else>
-      <input v-model="tempWorkFlow.days">天
-      <input v-model="tempWorkFlow.hours">小时
-      <input v-model="tempWorkFlow.minutes">分钟
+    <input type="radio" id="circle" :disabled="!isEditing" :value="true" v-model="tempWorkFlow.isCircleScheduled"/><label
+    for="circle">周期执行</label>
+    <input type="radio" id="single" :disabled="!isEditing" :value="false" v-model="tempWorkFlow.isCircleScheduled"/><label
+    for="single">单次执行</label>
+
+    <div v-if="tempWorkFlow.isCircleScheduled" style="display: inline-block">
+      <label for="interval" style="margin-left: 10px">间隔：</label>
+      <span v-if="!isEditing"
+            id="interval">{{tempWorkFlow.runInterval ? getDayHourMinuteFromTime(tempWorkFlow.runInterval) : '未配置'}}</span>
+      <div class="interval-input"
+           v-else>
+        <input v-model="tempWorkFlow.days">天
+        <input v-model="tempWorkFlow.hours">小时
+        <input v-model="tempWorkFlow.minutes">分钟
+      </div>
     </div>
     <button @click="saveWorkFlow()"
             v-show="isEditing">保存
@@ -60,8 +68,8 @@
       return {
         tempWorkFlow: {},
         isEditing: false,
-        workflow:{},
-        jobgourps:[]
+        workflow: {},
+        jobgourps: []
       }
     },
     props: ['workflowId'],
@@ -97,15 +105,17 @@
         this.tempWorkFlow = this.getTempWorkFlow()
       },
 
-      async getWorkFlow(){
+      async getWorkFlow() {
         this.workflow = await this.$store.dispatch('getWorkFlow', this.workflowId)
-        this.jobgourps = await this.$store.dispatch('getWorkFlowJobGroups',this.workflowId)
+        this.jobgourps = await this.$store.dispatch('getWorkFlowJobGroups', this.workflowId)
+        console.log('jobgroup',this.jobgourps)
       },
 
       getTempWorkFlow(workflow = this.workflow) {
-        const {days, hours, minutes} = util.getDayHourMinute(workflow.interval)
+        const { days, hours, minutes } = util.getDayHourMinute(workflow.runInterval)
         return {
           ...workflow,
+          isCircleScheduled: workflow.isCircleScheduled || false,
           days,
           hours,
           minutes,
@@ -113,8 +123,8 @@
       },
 
       async saveWorkFlow() {
-        const {days, hours, minutes} = this.tempWorkFlow
-        this.tempWorkFlow.interval = util.getTimeFromDayHourMinute(days, hours, minutes)
+        const { days, hours, minutes } = this.tempWorkFlow
+        this.tempWorkFlow.runInterval = util.getTimeFromDayHourMinute(days, hours, minutes)
         await this.$store.dispatch('saveWorkFlow', this.tempWorkFlow)
         this.isEditing = false
       },
@@ -133,22 +143,22 @@
 
       //subtask
       async subTaskRemove(subtaskId) {
-        await this.$store.dispatch('deleteSubTask', {taskId: this.taskId, subtaskId})
+        await this.$store.dispatch('deleteSubTask', { taskId: this.taskId, subtaskId })
       },
 
       async createSubTask() {
         await this.$store.dispatch('createSubTask', this.taskId)
       },
       async subTaskSave(subtask) {
-        await this.$store.dispatch('saveSubTask', {taskId: this.taskId, subtask})
+        await this.$store.dispatch('saveSubTask', { taskId: this.taskId, subtask })
       },
       async startSubTask(subtaskId) {
-        await this.$store.dispatch('startSubTask', {taskId: this.taskId, subtaskId})
+        await this.$store.dispatch('startSubTask', { taskId: this.taskId, subtaskId })
       },
       async stopSubTask(subtaskId) {
-        await this.$store.dispatch('stopSubTask', {taskId: this.taskId, subtaskId})
+        await this.$store.dispatch('stopSubTask', { taskId: this.taskId, subtaskId })
       },
-   
+
       clearConsole(subtaskId) {
         this.$store.commit(types.CLEAR_SUBTASK_MESSAGES, subtaskId)
       }
@@ -167,7 +177,7 @@
       }
     },
     mounted() {
-      this.getWorkFlow();
+      this.getWorkFlow()
     }
   }
 </script>

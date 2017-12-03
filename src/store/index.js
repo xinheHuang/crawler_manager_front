@@ -6,12 +6,14 @@ import Vuex from 'vuex'
 import messages from './modules/messages'
 import job from './modules/job'
 import auth from './modules/auth'
+import executorGroup from './modules/executorGroup'
 Vue.use(Vuex)
 
 export default new Vuex.Store({
                                 modules: {
                                   messages,
                                   job,
-                                  auth
+                                  auth,
+                                  executorGroup
                                 },
                               })

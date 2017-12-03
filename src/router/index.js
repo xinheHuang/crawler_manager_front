@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import WorkFlows from '../views/main/workflows'
 import WorkFlow from '../views/main/workflow'
+import ExecutorGroups from '../views/main/executorGroups'
 import Login from '../views/login'
 import Main from '../views/main'
 
@@ -33,7 +34,11 @@ export default new Router(
             path: '/workflow/:workflowId',
             component: WorkFlow,
             props: true
-          }
+          },
+          {
+            path: '/executorGroups',
+            component: ExecutorGroups,
+          },
         ]
       },
       //

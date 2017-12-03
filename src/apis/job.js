@@ -34,7 +34,7 @@ export default {
   },
 
   async saveWorkFlow(workflow) {
-    return await httpUtil.post(`workflows/${workflowId}`,workflow)
+    return await httpUtil.post(`workflows/${workflow.id}`,workflow)
   },
 
 
