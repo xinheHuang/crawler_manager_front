@@ -1,7 +1,7 @@
 /**
  * Created by Xinhe on 2017/11/18.
  */
-import TaskApis from '../../apis/tasks'
+import JobApis from '../../apis/job'
 import * as types from '../mutation-types'
 
 // initial state
@@ -25,81 +25,91 @@ const getters = {
 
 // actions
 const actions = {
-  async getTasks({commit, state}) {
-    const tasks = await TaskApis.getTasks()
-    commit(types.SET_TASKS, {tasks})
+  async getWorkFlows({commit, state}) {
+    const workflows = await JobApis.getWorkFlows()
+    return workflows
+    // commit(types.SET_TASKS, {workflows})
   },
 
-  async getTask({commit}, taskId) {
-    const task = await TaskApis.getTask(taskId)
-    commit(types.SET_TASK, {task})
-  },
-
-
-  async createTask({dispatch}, task) {
-    const taskId = await TaskApis.createTask(task)
-    await dispatch('getTask', taskId)
-    return taskId
-  },
-
-  async saveTask({dispatch}, task) {
-    await TaskApis.saveTask(task)
-    await dispatch('getTask', task.taskId)
-  },
-
-  async deleteTask({commit}, taskId) {
-    await TaskApis.deleteTask(taskId)
-    commit(types.DELETE_TASK, {taskId})
-  },
-
-  async startTask({dispatch}, taskId) {
-    await TaskApis.startTask(taskId)
-  },
-
-  async resumeTask({dispatch},taskId){
-    await TaskApis.resumeTask(taskId)
+  async getWorkFlow({commit}, workflowId) {
+    const workflow = await JobApis.getWorkFlow(workflowId)
+    return workflow
+    // commit(types.SET_TASK, {task})
   },
 
 
-  async stopTask({dispatch}, taskId) {
-    await TaskApis.stopTask(taskId)
+  async createWorkFlow({dispatch}, workflow) {
+    const workflowId = await JobApis.createWorkFlow(workflow)
+    // await dispatch('getTask', taskId)
+    return workflowId
   },
+
+
+  async deleteWorkFlow({commit}, workflowId) {
+    await JobApis.deleteWorkFlow(workflowId)
+    // commit(types.DELETE_TASK, {taskId})
+  },
+
+  async startWorkFlow({dispatch}, workflowId) {
+    await JobApis.startWorkFlow(workflowId)
+  },
+
+  async stopWorkFlow({dispatch}, workflowId) {
+    await JobApis.stopWorkFlow(workflowId)
+  },
+
+  async getWorkFlowJobGroups({dispatch},workflowId){
+    return await JobApis.getWorkFlowJobGroups(workflowId)
+  },
+
+
+  async saveWorkFlow({dispatch}, workflow) {
+    await JobApis.saveWorkFlow(workflow)
+    // await dispatch('getTask', task.taskId)
+  },
+
+
+  async resumeWorkFlow({dispatch}, workflowId) {
+    await JobApis.resumeWorkFlow(workflowId)
+  },
+
+
 
 
   async getServers({commit}) {
-    const servers = await TaskApis.getServers()
+    const servers = await job.getServers()
     commit(types.SET_SERVERS, {servers})
   },
 
   async getScripts({commit}) {
-    const scripts = await TaskApis.getScripts()
+    const scripts = await job.getScripts()
     commit(types.SET_SCRIPTS, {scripts})
   },
 
 
   //subtask
   async saveSubTask({dispatch}, {taskId, subtask}) {
-    await TaskApis.saveSubTask(subtask)
+    await job.saveSubTask(subtask)
     await dispatch('getTask', taskId)
   },
 
   async createSubTask({dispatch}, taskId) {
-    await TaskApis.createSubTask(taskId)
+    await job.createSubTask(taskId)
     await dispatch('getTask', taskId)
   },
 
   async deleteSubTask({dispatch}, {taskId, subtaskId}) {
-    await TaskApis.deleteSubTask(subtaskId)
+    await job.deleteSubTask(subtaskId)
     await dispatch('getTask', taskId)
   },
 
   async startSubTask({dispatch}, {taskId, subtaskId}) {
-    await TaskApis.startSubTask(subtaskId)
+    await job.startSubTask(subtaskId)
     await dispatch('getTask', taskId)
   },
 
   async stopSubTask({dispatch}, {taskId, subtaskId}) {
-    await TaskApis.stopSubTask(subtaskId)
+    await job.stopSubTask(subtaskId)
     await dispatch('getTask', taskId)
   },
 

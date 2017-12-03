@@ -23,10 +23,16 @@
           })
       })
 
-      this.$store.dispatch('connect')
-      this.$store.dispatch('getTasks')
-      this.$store.dispatch('getServers')
-      this.$store.dispatch('getScripts')
+      EventBus.$on('index', () => {
+        if (this.$route.name == 'index') {
+          return
+        }
+        this.$router.push({
+                            path: '/login',
+                            query: {redirect: this.$route.path}
+                          })
+      })
+
     }
   }
 </script>

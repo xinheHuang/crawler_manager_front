@@ -3,6 +3,13 @@
  */
 export default {
   getDayHourMinute(time) {
+    if (!time){
+      return {
+        days:null,
+        hours:null,
+        minutes:null
+      }
+    }
     const days = Math.floor(time / 86400)
     time -= days * 86400
     const hours = Math.floor(time / 3600) % 24

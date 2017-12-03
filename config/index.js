@@ -28,8 +28,8 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
-      '/api':{
-        target:'http://58.87.75.73:9000',
+      '/job/api':{
+        target:'http://58.87.75.73:8888',
         changeOrigin:true,
       }
     },

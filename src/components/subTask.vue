@@ -103,7 +103,7 @@
     data() {
       return {
         isEditing: false,
-        tempTask: {},
+        tempWorkFlow: {},
       }
     },
     methods: {
@@ -111,11 +111,11 @@
         this.isEditing = true
       },
       cancelEdit() {
-        this.tempTask = {...this.subTask}
+        this.tempWorkFlow = {...this.subTask}
         this.isEditing = false
       },
       async finishEdit() {
-        await this.subTaskSave(this.tempTask)
+        await this.subTaskSave(this.tempWorkFlow)
         this.isEditing = false
       },
 
@@ -123,7 +123,7 @@
     watch: {
       subTask: {
         handler(subTask) {
-          this.tempTask = {...subTask}
+          this.tempWorkFlow = {...subTask}
         },
         immediate: true
       }

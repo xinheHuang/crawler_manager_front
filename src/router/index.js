@@ -1,27 +1,51 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Tasks from '../views/tasks'
-import Task from '../views/task'
+import WorkFlows from '../views/main/workflows'
+import WorkFlow from '../views/main/workflow'
+import Login from '../views/login'
+import Main from '../views/main'
 
 Vue.use(Router)
 
 export default new Router(
   {
-    mode: 'history',
+    // mode: 'history',
     routes: [
       {
         path: '/',
-        redirect: '/tasks',
+        redirect: '/main',
       },
       {
-        path: '/tasks',
-        component: Tasks,
+        path: '/login',
+        name: 'index',
+        component: Login,
       },
       {
-        path: '/task/:taskId',
-        component: Task,
-        props: true
-      }
+        path: '/main',
+        redirect: '/workflows',
+        component: Main,
+        children: [
+          {
+            path: '/workflows',
+            component: WorkFlows,
+          },
+          {
+            path: '/workflow/:workflowId',
+            component: WorkFlow,
+            props: true
+          }
+        ]
+      },
+      //
+      // {
+      //   path: '/tasks',
+      //   component: Tasks,
+      // },
+      // {
+      //   path: '/task/:taskId',
+      //   component: Task,
+      //   props: true
+      // }
     ],
     scrollBehavior(to, from, savedPosition) {
       if (savedPosition) {

@@ -2,7 +2,7 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
-import HttpUtil from './httpUtil'
+import HttpUtil from './utils/httpUtil'
 import Swal from 'sweetalert'
 
 Vue.prototype.$swal = Swal;
