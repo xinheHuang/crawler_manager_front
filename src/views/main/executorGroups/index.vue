@@ -1,12 +1,24 @@
 <template>
   <div>
+    <div class="add-execuor">
+      <button @click="addExecutorGroups()">添加执行器组</button>
+    </div>
     <div class="executorGroups">
-      <div class="execuor-group" v-for="executorGroup in executorGroups">
+      <div class="executor-group" v-for="executorGroup in executorGroups">
         <span>名称：{{executorGroup.name}}</span>
+        <div>
+          执行器:
+          <div class="executor"  v-for="executor in executorGroup.executors">
+            <span>名称：{{executor.name}}</span>
+            <span>IP：{{executor.ipAddress}}</span>
+            <span>状态：{{executor.onlineStatus}}</span>
+          </div>
+        </div>
+        <div>
+          <button @click="removeExecutorGroup(executorGroup.name)" :disabled="executorGroup.name=='default'">移除</button>
+        </div>
       </div>
-      <div class="add-execuor">
-        <button @click="addExecutorGroups()">添加执行器组</button>
-      </div>
+
     </div>
   </div>
 </template>
@@ -19,68 +31,92 @@
         executorGroups: [],
       }
     },
-    computed: {
-    },
+    computed: {},
     methods: {
       async addExecutorGroups() {
         const name = await this.$swal({
-                                        text: '请输入执行器组名称',
-                                        content: 'input',
-                                        buttons: true,
-                                      })
+          text: '请输入执行器组名称',
+          content: 'input',
+          buttons: true,
+        })
         if (name === null) return
         if (!name) {
           await this.$swal({
-                             text: '必须输入名称',
-                             icon: 'error',
-                           })
+            text: '必须输入名称',
+            icon: 'error',
+          })
           this.addExecutorGroups()
         } else {
-          const executorName = await this.$store.dispatch('createExecutorGroup', {name})
+          const executorName = await this.$store.dispatch('createExecutorGroup', { name })
           this.$swal.stopLoading()
           this.$swal.close()
 //          this.$router.push({path: `/workflow/${workflowId}`})
-          this.getExecutorGroups();
+          this.getExecutorGroups()
         }
       },
 
       async removeExecutorGroup(name) {
-        await this.$store.dispatch('deleteExecutorGroup', name)
-        this.getExecutorGroups();
+        const confirm = await this.$swal({
+          title: '确定删除',
+          text: '删除整个组，但是还在运行的执行机还是会重新生成这个组，会清空当前组下的所有执行机记录',
+          buttons: {
+            cancel: {
+              text: 'Cancel',
+              visible: true,
+              closeModal: true,
+            },
+            confirm: {
+              text: 'OK',
+              closeModal: true
+            }
+          },
+        })
+        if (confirm) {
+          await this.$store.dispatch('deleteExecutorGroup', name)
+          this.getExecutorGroups()
+        }
       },
-      async getExecutorGroups(){
+      async getExecutorGroups() {
         this.executorGroups = await this.$store.dispatch('getExecutorGroups')
       },
     },
     mounted() {
-     this.getExecutorGroups()
+      this.getExecutorGroups()
     }
   }
 </script>
-<style scoped>
+<style lang="less" scoped>
   .executorGroups {
+    margin-top: 20px;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-  }
-
-  .task {
-    width: 49%;
-    /*padding: 20px 50px;*/
-    height: 500px;
-    margin-bottom: 40px;
+    .executor-group {
+      display: flex;
+      justify-content: space-between;
+      margin: 10px;
+      align-items: center;
+      width: 100%;
+      border: 1px solid black;
+      padding: 10px;
+      .executor{
+        display: flex;
+        span{
+          margin: 10px;
+        }
+      }
+    }
   }
 
   .add-execuor {
-    width: 50%;
+    margin-top: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
-
+    button {
+      font-size: 20px;
+    }
   }
 
-  .add-execuor button {
-    font-size: 30px;
-  }
 </style>

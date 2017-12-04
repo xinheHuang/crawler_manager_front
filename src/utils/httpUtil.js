@@ -8,24 +8,23 @@ methods.forEach((method) => {
   const fn = httpUtils[method]
   httpUtils[method] = async (url, ...args) => {
     try {
-      console.log(`${basePath}${url}`);
       const res = await fn(`${basePath}${url}`, ...args)
-      console.log(method, args, res.data)
+      console.log(method, [`${basePath}${url}`, ...args], res.data)
       return res.data
     } catch (error) {
       // if (!error instanceof ApiError) {  //非逻辑错误
-      const {status} = error.response
+      const { status, data } = error.response
       console.log(error.response)
       switch (status) {
-        case 401:
-          console.log('should login')
-          EventBus.$emit('index')
-          break
-        case 417:
-          EventBus.$emit('errorDialog', {
-            text: message,
-          })
-          break
+      case 401:
+        console.log('should login')
+        EventBus.$emit('index')
+        break
+      case 417:
+        EventBus.$emit('errorDialog', {
+          text: data.message,
+        })
+        break
       }
       return Promise.reject(error)
     }

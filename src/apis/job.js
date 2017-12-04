@@ -25,7 +25,7 @@ export default {
     return await httpUtil.post(`workflows/${workflowId}/stop`)
   },
 
-  async resumeWorkFlow(workflowId){
+  async resumeWorkFlow(workflowId) {
     return await httpUtil.post(`/workflows/${workflowId}/resume`)
   },
 
@@ -34,50 +34,44 @@ export default {
   },
 
   async saveWorkFlow(workflow) {
-    return await httpUtil.post(`workflows/${workflow.id}`,workflow)
+    return await httpUtil.post(`workflows/${workflow.id}`, workflow)
   },
 
 
-  async getWorkFlowJobGroups(workflowId){
+  async getWorkFlowJobGroups(workflowId) {
     return await httpUtil.get(`workflows/${workflowId}/job/groups`)
   },
 
-
-
-
-
-
-
-  //server
-  async getServers() {
-    return await httpUtil.get('/api/servers')
+  async createJobGroup(jobGroup) {
+    return await httpUtil.post(`job/groups`, jobGroup)
   },
 
-  //script
-  async getScripts() {
-    return await httpUtil.get('/api/scripts')
+  async saveJobGroup(jobGroup) {
+    return await httpUtil.post(`job/groups/${jobGroup.id}`, jobGroup)
   },
 
-  //subtask
-  async saveSubTask(subtask) {
-    return await httpUtil.put(`/api/subtask/${subtask.subtaskId}`, subtask)
+  async deleteJobGroup(jobGroupId){
+    return await httpUtil.delete(`job/groups/${jobGroup.id}`)
   },
 
-  async createSubTask(taskId) {
-    return await httpUtil.post(`/api/task/${taskId}/subtasks`)
+  async getJobGroupJobs(jobGroupId){
+    return await httpUtil.get(`job/groups/${jobGroupId}/jobs`)
   },
 
-  async deleteSubTask(subtaskId) {
-    return await httpUtil.delete(`/api/subtask/${subtaskId}`)
+  async createJob(job){
+    return await httpUtil.post(`jobs`,job)
   },
 
-  async startSubTask(subtaskId) {
-    return await httpUtil.post(`/api/subtask/${subtaskId}/start`)
+  async saveJob(job){
+    return await httpUtil.post(`jobs/${job.id}`,job)
   },
 
-  async stopSubTask(subtaskId) {
-    return await httpUtil.post(`/api/subtask/${subtaskId}/stop`)
+  async deleteJob(jobId){
+    return await httpUtil.delete(`jobs/${jobId}`)
   },
 
+  async runJob(jobId){
+    return await httpUtil.post(`jobs/${jobId}/run`)
+  }
 
 }

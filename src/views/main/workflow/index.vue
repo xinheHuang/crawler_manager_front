@@ -3,9 +3,17 @@
     <label for="name">名称：</label><input id="name" v-model="tempWorkFlow.name"
                                         :disabled="!isEditing">
 
-    <input type="radio" id="circle" :disabled="!isEditing" :value="true" v-model="tempWorkFlow.isCircleScheduled"/><label
+    <input type="radio"
+           id="circle"
+           :disabled="!isEditing"
+           :value="true"
+           v-model="tempWorkFlow.isCircleScheduled" /><label
     for="circle">周期执行</label>
-    <input type="radio" id="single" :disabled="!isEditing" :value="false" v-model="tempWorkFlow.isCircleScheduled"/><label
+    <input type="radio"
+           id="single"
+           :disabled="!isEditing"
+           :value="false"
+           v-model="tempWorkFlow.isCircleScheduled" /><label
     for="single">单次执行</label>
 
     <div v-if="tempWorkFlow.isCircleScheduled" style="display: inline-block">
@@ -29,37 +37,61 @@
             v-show="!isEditing">编辑
     </button>
     <div class="op">
-      <span style="margin-right: 20px">任务状态：{{workflow.status}}</span>
+      <span style="margin-right: 20px">工作流状态：{{workflow.status}}</span>
       <button
-        @click="startTask()">开始任务
+        @click="startWorkFlow()">开始工作流
       </button>
-      <button @click="stopTask()">停止任务
-      </button>
-      <button v-show="workflow.status == 'error'"
-              @click="resumeTask()">继续任务
+      <!--<button @click="stopWorkFlow()">停止工作流-->
+      <!--</button>-->
+      <button @click="resumeWorkFlow()">继续工作流
       </button>
     </div>
-    <div class="task">
-      <subTask :key="subtask.subtaskId"
-               v-for="subtask in workflow.subTasks"
-               class="subTask"
-               :subTask="subtask"
-               :servers="servers"
-               :subTaskSave="subTaskSave"
-               @remove="subTaskRemove(subtask.subtaskId)"
-               :logs="subtaskMessages[subtask.subtaskId]"
-               @clear="clearConsole(subtask.subtaskId)"
-               @start="startSubTask(subtask.subtaskId)"
-               @stop="stopSubTask(subtask.subtaskId)"
-               :scripts="scripts"/>
+
+    <div>
+      <div v-for="(jobgroup,index) in jobgourps" :key="jobgroup.id" class="jobGroup">
+
+        <div class="job-group-info">
+          <div>
+            <label for="jobGroupName">名称:</label>
+            <input v-if="jobGroupEditing==jobgroup.id"
+                   id="jobGroupName"
+                   v-model="tempJobGroup.name" />
+            <span v-else>{{jobgroup.name}}</span>
+
+            <label for="order">次序:</label>
+            <input v-if="jobGroupEditing==jobgroup.id" id="order" v-model="tempJobGroup.step" />
+            <span v-else>{{jobgroup.step}}</span>
+
+            <label>状态:</label><span>{{jobgroup.status}}</span>
+          </div>
+          <div>
+            <button v-if="jobGroupEditing!=jobgroup.id" @click="goJobGroupEdit(jobgroup)">编辑
+            </button>
+            <button v-if="jobGroupEditing==jobgroup.id" @click="cancelJobGroupEdit()">取消</button>
+            <button v-if="jobGroupEditing==jobgroup.id" @click="saveJobGroup(tempJobGroup,index)">
+              确定
+            </button>
+          </div>
+        </div>
+        <job :key="job.id"
+             :job="job"
+             :executorGroups="executorGroups"
+             :jobSave="saveJob"
+             @remove="deleteJob(jobgroup.id,job.id)"
+             @start="startJob(job.id)"
+             v-for="job in jobGroupJobs[jobgroup.id]">
+        </job>
+        <button @click="createJob(jobgroup.id)">添加工作</button>
+      </div>
+
       <div class="add-task">
-        <button @click="createSubTask()">添加子任务</button>
+        <button @click="createJobGroup()">添加任务组</button>
       </div>
     </div>
   </div>
 </template>
 <script>
-  import subTask from '../../../components/subTask.vue'
+  import job from '../../../components/job.vue'
   import * as types from '../../../store/mutation-types'
   import util from '../../../utils/index'
 
@@ -69,7 +101,12 @@
         tempWorkFlow: {},
         isEditing: false,
         workflow: {},
-        jobgourps: []
+        jobgourps: [],
+        tempJobGroup: null,
+        jobGroupJobs: {},
+        jobGroupEditing: null,
+        executorGroups:[],
+        tempJob:{}
       }
     },
     props: ['workflowId'],
@@ -77,20 +114,6 @@
       subtaskMessages() {
         return this.$store.state.messages.subtaskMessages
       },
-//      servers() {
-//        return this.$store.state.tasks.servers
-//      },
-//      scripts() {
-//        return this.$store.state.tasks.scripts
-//      },
-//      task() {
-//        console.log('here tasks')
-//        return this.$store.state.tasks.tasks
-//      },
-//      task() {
-//        console.log('here')
-//        return this.$store.state.tasks.tasks[this.taskId] || {}
-//      },
     },
     methods: {
       getDayHourMinuteFromTime(time) {
@@ -108,7 +131,9 @@
       async getWorkFlow() {
         this.workflow = await this.$store.dispatch('getWorkFlow', this.workflowId)
         this.jobgourps = await this.$store.dispatch('getWorkFlowJobGroups', this.workflowId)
-        console.log('jobgroup',this.jobgourps)
+        this.jobgourps.forEach(({ id }) => {
+          this.getJobGroupJobs(id)
+        })
       },
 
       getTempWorkFlow(workflow = this.workflow) {
@@ -141,22 +166,55 @@
         await this.$store.dispatch('resumeWorkFlow', this.workflowId)
       },
 
-      //subtask
-      async subTaskRemove(subtaskId) {
-        await this.$store.dispatch('deleteSubTask', { taskId: this.taskId, subtaskId })
+      async createJobGroup() {
+        await this.$store.dispatch('createJobGroup', {
+          step: 0,
+          name: '',
+          workFlowId: this.workflowId
+        })
       },
 
-      async createSubTask() {
-        await this.$store.dispatch('createSubTask', this.taskId)
+      async saveJobGroup(jobGroup, index) {
+        try {
+          await this.$store.dispatch('saveJobGroup', jobGroup)
+          this.jobgourps[index] = jobGroup
+        }finally {
+          this.cancelJobGroupEdit()
+        }
       },
-      async subTaskSave(subtask) {
-        await this.$store.dispatch('saveSubTask', { taskId: this.taskId, subtask })
+      cancelJobGroupEdit() {
+        this.jobGroupEditing = null
+        this.tempJobGroup = null
       },
-      async startSubTask(subtaskId) {
-        await this.$store.dispatch('startSubTask', { taskId: this.taskId, subtaskId })
+      goJobGroupEdit(jobGroup) {
+        this.jobGroupEditing = jobGroup.id
+        this.tempJobGroup = { ...jobGroup }
       },
-      async stopSubTask(subtaskId) {
-        await this.$store.dispatch('stopSubTask', { taskId: this.taskId, subtaskId })
+
+      async createJob(jobGroupId){
+        await this.$store.dispatch('createJob',{
+          jobGroupId,
+          executorGroup:{
+            name:'default'
+          }
+        })
+        this.getJobGroupJobs(jobGroupId)
+      },
+      async startJob(jobId){
+        await this.$store.dispatch('startJob',jobId)
+      },
+      async saveJob(job){
+        await this.$store.dispatch('saveJob',job)
+        this.getJobGroupJobs(job.jobGroupId)
+      },
+
+      async deleteJob(jobGroupId,jobId){
+        await this.$store.dispatch('deleteJob',jobId)
+        this.getJobGroupJobs(jobGroupId)
+      },
+
+      async getJobGroupJobs(jobGroupId){
+        this.$set(this.jobGroupJobs,jobGroupId,await this.$store.dispatch('getJobGroupJobs', jobGroupId))
       },
 
       clearConsole(subtaskId) {
@@ -164,7 +222,7 @@
       }
     },
     components: {
-      subTask
+      job
     },
     watch: {
       workflow: {
@@ -176,7 +234,8 @@
         deep: true,
       }
     },
-    mounted() {
+    async mounted() {
+      this.executorGroups = await this.$store.dispatch('getExecutorGroups')
       this.getWorkFlow()
     }
   }
@@ -204,9 +263,21 @@
     }
   }
 
-  .task {
-    display: flex;
-    flex-wrap: wrap;
+  .jobGroup {
+    border: 1px solid black;
+    padding: 20px;
+    margin: 20px 0;
+    width: 100%;
+    .job-group-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 20px;
+      label {
+        margin-left: 20px;
+      }
+    }
+
     .subTask {
       width: 100%;
       /*padding: 20px 50px;*/

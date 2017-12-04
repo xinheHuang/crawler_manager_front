@@ -1,5 +1,5 @@
 <template>
-  <div id="login">
+  <div id="login"  @keyup.enter="login">
     <label>用户名</label>
     <input v-model="username"/>
     <label>密码</label>

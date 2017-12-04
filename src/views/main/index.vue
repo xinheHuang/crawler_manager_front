@@ -3,23 +3,23 @@
     <!--<h1>任务管理器</h1>-->
     <div class="nav">
       <span class="nav-item" v-for="route in routes">
-        <router-link :to="route.name" class="nav-link" active-class="active">
+        <router-link :to="{name:route.name}" class="nav-link" active-class="active">
           {{ route.title }}
         </router-link>
       </span>
     </div>
     <div class="content">
       <!--<keep-alive>-->
-        <router-view></router-view>
+      <router-view></router-view>
       <!--</keep-alive>-->
     </div>
   </div>
 </template>
 <script>
   export default {
-    data(){
+    data() {
       return {
-        routes:[{name:'workflows',title:'工作流'},{name:'executorGroups',title:'执行组'},]
+        routes: [{ name: 'workflows', title: '工作流' }, { name: 'executorGroups', title: '执行组' },]
       }
     },
     mounted() {
@@ -41,18 +41,20 @@
     max-width: 1280px;
     margin: 0 auto;
   }
-  .nav{
+
+  .nav {
     width: 100%;
     background: lightgrey;
     display: flex;
-    .nav-item{
+    .nav-item {
       padding: 5px;
-      .nav-link{
+      .nav-link {
         font-size: 20px;
         text-decoration: none;
         color: gray;
-        &.active{
+        &.active {
           color: black;
+          cursor: not-allowed;
         }
       }
     }

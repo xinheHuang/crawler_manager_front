@@ -18,7 +18,7 @@ export default new Router(
       },
       {
         path: '/login',
-        name: 'index',
+        name: 'login',
         component: Login,
       },
       {
@@ -28,6 +28,7 @@ export default new Router(
         children: [
           {
             path: '/workflows',
+            name:'workflows',
             component: WorkFlows,
           },
           {
@@ -37,6 +38,7 @@ export default new Router(
           },
           {
             path: '/executorGroups',
+            name:'executorGroups',
             component: ExecutorGroups,
           },
         ]
