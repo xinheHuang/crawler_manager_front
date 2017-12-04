@@ -4,8 +4,8 @@ var path = require('path')
 module.exports = {
   build: {
     env: require('./prod.env'),
-    index: path.resolve(__dirname, '../../crawler_manager/public/index.html'),
-    assetsRoot: path.resolve(__dirname, '../../crawler_manager/public'),
+    index: path.resolve(__dirname, '../../job_front/public/index.html'),
+    assetsRoot: path.resolve(__dirname, '../../job_front/public'),
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     productionSourceMap: true,
