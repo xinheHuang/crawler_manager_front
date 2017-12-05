@@ -62,7 +62,7 @@
             <input v-if="jobGroupEditing==jobgroup.id" id="order" v-model="tempJobGroup.step" />
             <span v-else>{{jobgroup.step}}</span>
 
-            <label>状态:</label><span>{{jobgroup.status}}</span>
+            <!--<label>状态:</label><span>{{jobgroup.status}}</span>-->
           </div>
           <div>
             <button v-if="jobGroupEditing!=jobgroup.id" @click="goJobGroupEdit(jobgroup)">编辑
@@ -79,6 +79,7 @@
              :jobSave="saveJob"
              @remove="deleteJob(jobgroup.id,job.id)"
              @start="startJob(job.id)"
+             :logs="jobLogs[job.id]"
              v-for="job in jobGroupJobs[jobgroup.id]">
         </job>
         <button @click="createJob(jobgroup.id)">添加工作</button>
@@ -111,8 +112,8 @@
     },
     props: ['workflowId'],
     computed: {
-      subtaskMessages() {
-        return this.$store.state.messages.subtaskMessages
+      jobLogs() {
+        return this.$store.state.messages.jobLogs
       },
     },
     methods: {

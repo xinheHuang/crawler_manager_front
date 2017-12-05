@@ -16,6 +16,8 @@
   "dependencies": {
     "axios": "^0.17.1",
     "qs": "^6.5.1",
+    "sockjs-client": "^1.1.4",
+    "stompjs": "^2.3.3",
     "sweetalert": "^2.0.8",
     "vue": "^2.4.4",
     "vue-router": "^3.0.1",

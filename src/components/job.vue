@@ -5,8 +5,8 @@
         <div style="display: flex">
           <div class="console">
             <p v-for="log in logs"
-               style="margin-bottom:10px;text-align: left">
-              {{log}}
+               style="margin-bottom:10px;text-align: left" :class="log.error?'error':''">
+              {{log.content}}
               <span style="display: block">===================</span>
             </p>
           </div>
@@ -136,6 +136,9 @@
           border: solid 1px gray;
           margin-right: 20px;
           flex-grow: 1;
+          .error{
+            color: red
+          }
         }
         .status {
           flex-shrink: 0;

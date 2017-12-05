@@ -9,7 +9,7 @@
             @stopTask="stopWorkFlow(workflow.id)"
             @deleteTask="removeWorkFlow(workflow.id)"
             @clear="clearConsole(workflow.id)"
-            :logs="getMessageName(taskMessages[workflow.id])"
+            :logs="getMessageName(workFlowLogs[workflow.id])"
       />
       <div class="add-task">
         <button @click="addWorkFlow()">添加工作流</button>
@@ -31,8 +31,8 @@
       }
     },
     computed: {
-      taskMessages() {
-        return this.$store.state.messages.taskMessages
+      workFlowLogs() {
+        return this.$store.state.messages.workFlowLogs
       },
 //      tasks() {
 //        return this.$store.state.tasks.tasks
@@ -41,9 +41,10 @@
     },
     methods: {
       getMessageName(messages = []) {
-        return messages.map(({subtaskId, message}) => ({
-          subtaskName: subtaskId ? this.$store.getters.subTasks[subtaskId].name : null,
-          message,
+        return messages.map(({jobId, error,content}) => ({
+          jobName: jobId ? jobId : null,
+          error,
+          content
         }))
       },
       async addWorkFlow() {

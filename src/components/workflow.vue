@@ -8,9 +8,11 @@
       <div class="content">
         <div class="console">
           <p v-for="log in logs"
-             style="margin-bottom:10px;text-align: left">
-            <span style="color: red">{{log.subtaskName}}</span>
-            {{log.message}}
+             style="margin-bottom:10px;text-align: left"
+            :class="log.error?'error':''"
+          >
+            <span style="font-weight: bold">{{log.jobName}}:</span>
+            {{log.content}}
             <span style="display: block">===================</span>
           </p>
 
@@ -82,6 +84,9 @@
     flex-grow: 1;
     border: solid 1px gray;
     margin-right: 30px;
+    .error{
+      color:red
+    }
   }
 
   .op {

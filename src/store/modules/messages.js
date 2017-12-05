@@ -1,76 +1,84 @@
 /**
  * Created by Xinhe on 2017/11/18.
  */
-import ws from '../../webSocket'
 import * as types from '../mutation-types'
 
-const MESSAGE_WEB_SOCKET = 'MESSAGE_WEB_SOCKET'
+const Stomp = require('stompjs/lib/stomp').Stomp
+
 const MAX_LOG_NUMBER = 10
-
-
-const MessageType = {
-  LOG: 'LOG',
-  DONE: 'DONE',
-  ERROR: 'ERROR',
-  START: 'START',
-}
 
 // initial state
 const state = {
   wsConnected: false,
-  subtaskMessages: {},
-  taskMessages: {},
+  jobLogs: {},
+  workFlowLogs: {},
 }
 
 // getters
 const getters = {}
 
+let client
 // actions
 const actions = {
-  connect({commit, dispatch,}) {
-    let wsUrl
-    if (process.env.NODE_ENV === 'development') {
-      wsUrl = 'localhost:9000'
-    } else {
-      wsUrl = `${window.location.hostname}:${window.location.port}`
-    }
-    ws.connect(wsUrl, MESSAGE_WEB_SOCKET, (msg) => {
-      console.log('msg', msg)
-
-      try {
-        //todo
-        const {taskId, subtaskId, message, type} = JSON.parse(msg)
-        if (!taskId) return
-
-        commit(types.MESSAGE_RECEIVE, {message, taskId, subtaskId})
-        //handle message type
-        switch (type) {
-          case MessageType.START:
-          case MessageType.ERROR:
-          case MessageType.DONE:
-            dispatch('getTask', taskId)
-            // if (subtaskId){
-            //   dispatch('getSubTask',subtaskId)
-            // }
-            break
-        }
-      } catch (err) {
-        console.log(`${err}: ${msg}`)
+  connect({ commit, dispatch, }) {
+    // var socket = new SockJS('/job/api/v1/job-websocket');
+    client = Stomp.client('ws://58.87.75.73:8888/job/api/v1/job-websocket/websocket')
+    client.connect({}, (frame) => {
+        commit(types.CHANGE_SOCKET_STATUS, true)
+        console.log('Connected: ' + frame)
+        client.subscribe('/topic/log', function ({ body }) {
+          try {
+            commit(types.MESSAGE_RECEIVE, JSON.parse(body))
+          } catch (e) {
+            console.log(e)
+          }
+        })
+        client.subscribe('/topic/status', function ({ body }) {
+          try {
+            // commit(types.MESSAGE_RECEIVE, JSON.parse(body))
+          } catch (e) {
+            console.log(e)
+          }
+        })
       }
+    )
 
 
-    })
-    commit(types.CHANGE_SOCKET_STATUS, true)
+    // try {
+    //   //todo
+    //   const {taskId, subtaskId, message, type} = JSON.parse(msg)
+    //   if (!taskId) return
+    //
+    //   commit(types.MESSAGE_RECEIVE, {message, taskId, subtaskId})
+    //   //handle message type
+    //   switch (type) {
+    //     case MessageType.START:
+    //     case MessageType.ERROR:
+    //     case MessageType.DONE:
+    //       dispatch('getTask', taskId)
+    //       // if (subtaskId){
+    //       //   dispatch('getSubTask',subtaskId)
+    //       // }
+    //       break
+    //   }
+    // } catch (err) {
+    //   console.log(`${err}: ${msg}`)
+    // }
+
+
   },
 
-  close({commit}) {
-    ws.close(MESSAGE_WEB_SOCKET)
-    commit(types.CHANGE_SOCKET_STATUS, false)
-    commit(types.EMPTY_MESSAGES)
+  close({ commit }) {
+    if (client) {
+      client.disconnect(() => {
+        console.log('disconnect!')
+        commit(types.CHANGE_SOCKET_STATUS, false)
+        commit(types.EMPTY_MESSAGES)
+        client = null
+      })
+    }
   }
 }
-
-
 
 
 // mutations
@@ -87,32 +95,32 @@ const mutations = {
 
   [types.CLEAR_SUBTASK_MESSAGES](state, subtaskId) {
     delete  state.subtaskMessages[subtaskId]
-    state.subtaskMessages = {...state.subtaskMessages}
+    state.subtaskMessages = { ...state.subtaskMessages }
   },
 
   [types.CLEAR_TASK_MESSAGES](state, taskId) {
     delete  state.taskMessages[taskId]
-    state.taskMessages = {...state.taskMessages}
+    state.taskMessages = { ...state.taskMessages }
   },
 
-  [types.MESSAGE_RECEIVE](state, {message, taskId, subtaskId}) {
-    //subtask
-    if (subtaskId) {
-      const prevMessages = state.subtaskMessages[subtaskId] || []
-      prevMessages.unshift(message)
-      if (prevMessages.length > MAX_LOG_NUMBER) {
-        prevMessages.pop()
-      }
-      state.subtaskMessages = {...state.subtaskMessages, [subtaskId]: prevMessages}
+  [types.MESSAGE_RECEIVE](state, { jobId, workFlowId, error, content }) {
+    const prevMessages = state.jobLogs[jobId] || []
+    prevMessages.unshift({
+      content,
+      error
+    })
+    if (prevMessages.length > MAX_LOG_NUMBER) {
+      prevMessages.pop()
     }
+    state.jobLogs = { ...state.jobLogs, [jobId]: prevMessages }
 
-    //task
-    const prevTaskMessages = state.taskMessages[taskId] || []
-    prevTaskMessages.unshift({subtaskId, message})
-    if (prevTaskMessages.length > MAX_LOG_NUMBER) {
-      prevTaskMessages.pop()
+
+    const prevWorkFlowMessages = state.workFlowLogs[workFlowId] || []
+    prevWorkFlowMessages.unshift({ jobId, content, error })
+    if (prevWorkFlowMessages.length > MAX_LOG_NUMBER) {
+      prevWorkFlowMessages.pop()
     }
-    state.taskMessages = {...state.taskMessages, [taskId]: prevTaskMessages}
+    state.workFlowLogs = { ...state.workFlowLogs, [workFlowId]: prevWorkFlowMessages }
   }
 }
 

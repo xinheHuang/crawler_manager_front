@@ -5,29 +5,42 @@ import JobApis from '../../apis/job'
 import * as types from '../mutation-types'
 
 // initial state
-const state = {}
+const state = {
+  workflows:{},
+  jobGroups:{},
+  jobs:{},
+}
 
 // getters
-const getters = {}
+const getters = {
+  // jobs: (state) => Object.values(state.tasks)
+  //   .reduce((prev, task) => ({
+  //     ...prev,
+  //     ...task.subTasks.reduce((prev, subtask) => ({
+  //       ...prev,
+  //       [subtask.subtaskId]: subtask
+  //     }), {})
+  //   }), {})
+}
 
 // actions
 const actions = {
   async getWorkFlows({ commit, state }) {
     const workflows = await JobApis.getWorkFlows()
+    // commit(types.SET_WORKFLOWS, {workflows})
     return workflows
-    // commit(types.SET_TASKS, {workflows})
   },
 
   async getWorkFlow({ commit }, workflowId) {
     const workflow = await JobApis.getWorkFlow(workflowId)
+    // commit(types.SET_WORKFLOW, {workflow})
     return workflow
-    // commit(types.SET_TASK, {task})
   },
 
 
   async createWorkFlow({ dispatch }, workflow) {
     const workflowId = await JobApis.createWorkFlow(workflow)
-    // await dispatch('getTask', taskId)
+    // await dispatch('getWorkFlow', workflowId)
     return workflowId
   },
 
@@ -46,7 +59,9 @@ const actions = {
   },
 
   async getWorkFlowJobGroups({ dispatch }, workflowId) {
-    return await JobApis.getWorkFlowJobGroups(workflowId)
+    const jobgroups=await JobApis.getWorkFlowJobGroups(workflowId)
+    // commit(types.SET_WORKFLOWS, {jobgroups})
+    return jobgroups
   },
 
 
@@ -74,7 +89,8 @@ const actions = {
   },
 
   async getJobGroupJobs({}, jobGroupId) {
-    return await JobApis.getJobGroupJobs(jobGroupId)
+    const jobs=await JobApis.getJobGroupJobs(jobGroupId)
+    return jobs
   },
 
   async createJob({}, job) {
@@ -94,8 +110,26 @@ const actions = {
   }
 }
 
+const mapArray2ObjByKey = (arr, key) => arr.reduce((prev, item) =>
+  ({
+    ...prev,
+    [item[key]]: item
+  }), {})
+
+
 // mutations
-const mutations = {}
+const mutations = {
+  [types.SET_WORKFLOWS](state, {workflows}) {
+    state.workflows = mapArray2ObjByKey(workflows, 'id')
+  },
+  [types.SET_WORKFLOW](state, {workflow}) {
+    state.workflows = {
+      ...state.workflows,
+      [workflow.id]: task
+    }
+  },
+
+}
 
 export default {
   state,

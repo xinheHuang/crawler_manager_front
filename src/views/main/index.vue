@@ -23,7 +23,7 @@
       }
     },
     mounted() {
-//      this.$store.dispatch('connect')
+      this.$store.dispatch('connect')
 
 //      this.$store.dispatch('getWorkFlows')
 //      this.$store.dispatch('getServers')
