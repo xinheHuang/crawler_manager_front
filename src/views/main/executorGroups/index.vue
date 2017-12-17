@@ -13,7 +13,7 @@
                v-for="executor in executorGroup.executors">
             <span>名称：{{executor.name}}</span>
             <!--<span>IP：{{executor.ipAddress}}</span>-->
-            <span>状态：{{executor.onlineStstopJobatus}}</span>
+            <span>状态：{{executor.onlineStatus}}</span>
             <span v-if="executorGroupStatus[executor.name]">
               <span>cpu百分比: {{(executorGroupStatus[executor.name].cpuLoad*100).toFixed(2)}}%</span>
               <span>空闲内存: {{(executorGroupStatus[executor.name].freePhysicalMemory/1024/1024).toFixed(2)}}MB</span>
