@@ -4,18 +4,27 @@
       <button @click="addExecutorGroups()">添加执行器组</button>
     </div>
     <div class="executorGroups">
-      <div class="executor-group" v-for="executorGroup in executorGroups">
+      <div class="executor-group"
+           v-for="executorGroup in executorGroups">
         <span>名称：{{executorGroup.name}}</span>
         <div>
-          执行器:
-          <div class="executor"  v-for="executor in executorGroup.executors">
+          执行器列表:
+          <div class="executor"
+               v-for="executor in executorGroup.executors">
             <span>名称：{{executor.name}}</span>
-            <span>IP：{{executor.ipAddress}}</span>
-            <span>状态：{{executor.onlineStatus}}</span>
+            <!--<span>IP：{{executor.ipAddress}}</span>-->
+            <span>状态：{{executor.onlineStstopJobatus}}</span>
+            <span v-if="executorGroupStatus[executor.name]">
+              <span>cpu百分比: {{(executorGroupStatus[executor.name].cpuLoad*100).toFixed(2)}}%</span>
+              <span>空闲内存: {{(executorGroupStatus[executor.name].freePhysicalMemory/1024/1024).toFixed(2)}}MB</span>
+              <span>总内存: {{(executorGroupStatus[executor.name].totalPhysicalMemory/1024/1024).toFixed(2)}}MB</span>
+            </span>
           </div>
         </div>
         <div>
-          <button @click="removeExecutorGroup(executorGroup.name)" :disabled="executorGroup.name=='default'">移除</button>
+          <button @click="removeExecutorGroup(executorGroup.name)"
+                  :disabled="executorGroup.name=='default'">移除
+          </button>
         </div>
       </div>
 
@@ -31,23 +40,27 @@
         executorGroups: [],
       }
     },
-    computed: {},
+    computed: {
+      executorGroupStatus() {
+        return this.$store.state.messages.executorGroupStatus
+      }
+    },
     methods: {
       async addExecutorGroups() {
         const name = await this.$swal({
-          text: '请输入执行器组名称',
-          content: 'input',
-          buttons: true,
-        })
+                                        text: '请输入执行器组名称',
+                                        content: 'input',
+                                        buttons: true,
+                                      })
         if (name === null) return
         if (!name) {
           await this.$swal({
-            text: '必须输入名称',
-            icon: 'error',
-          })
+                             text: '必须输入名称',
+                             icon: 'error',
+                           })
           this.addExecutorGroups()
         } else {
-          const executorName = await this.$store.dispatch('createExecutorGroup', { name })
+          const executorName = await this.$store.dispatch('createExecutorGroup', {name})
           this.$swal.stopLoading()
           this.$swal.close()
 //          this.$router.push({path: `/workflow/${workflowId}`})
@@ -57,20 +70,20 @@
 
       async removeExecutorGroup(name) {
         const confirm = await this.$swal({
-          title: '确定删除',
-          text: '删除整个组，但是还在运行的执行机还是会重新生成这个组，会清空当前组下的所有执行机记录',
-          buttons: {
-            cancel: {
-              text: 'Cancel',
-              visible: true,
-              closeModal: true,
-            },
-            confirm: {
-              text: 'OK',
-              closeModal: true
-            }
-          },
-        })
+                                           title: '确定删除',
+                                           text: '删除整个组，但是还在运行的执行机还是会重新生成这个组，会清空当前组下的所有执行机记录',
+                                           buttons: {
+                                             cancel: {
+                                               text: 'Cancel',
+                                               visible: true,
+                                               closeModal: true,
+                                             },
+                                             confirm: {
+                                               text: 'OK',
+                                               closeModal: true
+                                             }
+                                           },
+                                         })
         if (confirm) {
           await this.$store.dispatch('deleteExecutorGroup', name)
           this.getExecutorGroups()
@@ -85,7 +98,8 @@
     }
   }
 </script>
-<style lang="less" scoped>
+<style lang="less"
+       scoped>
   .executorGroups {
     margin-top: 20px;
     display: flex;
@@ -100,9 +114,9 @@
       width: 100%;
       border: 1px solid black;
       padding: 10px;
-      .executor{
+      .executor {
         display: flex;
-        span{
+        span {
           margin: 10px;
         }
       }

@@ -13,27 +13,19 @@ const state = {
 
 // getters
 const getters = {
-  // jobs: (state) => Object.values(state.tasks)
-  //   .reduce((prev, task) => ({
-  //     ...prev,
-  //     ...task.subTasks.reduce((prev, subtask) => ({
-  //       ...prev,
-  //       [subtask.subtaskId]: subtask
-  //     }), {})
-  //   }), {})
 }
 
 // actions
 const actions = {
   async getWorkFlows({ commit, state }) {
     const workflows = await JobApis.getWorkFlows()
-    // commit(types.SET_WORKFLOWS, {workflows})
+    commit(types.SET_WORKFLOWS, {workflows})
     return workflows
   },
 
   async getWorkFlow({ commit }, workflowId) {
     const workflow = await JobApis.getWorkFlow(workflowId)
-    // commit(types.SET_WORKFLOW, {workflow})
+    commit(types.SET_WORKFLOW, {workflow})
     return workflow
   },
 
@@ -88,8 +80,9 @@ const actions = {
     await JobApis.deleteJobGroup(jobGroupId)
   },
 
-  async getJobGroupJobs({}, jobGroupId) {
+  async getJobGroupJobs({commit}, jobGroupId) {
     const jobs=await JobApis.getJobGroupJobs(jobGroupId)
+    commit(types.SET_JOBS, {jobGroupId,jobs})
     return jobs
   },
 
@@ -107,7 +100,12 @@ const actions = {
 
   async startJob({},jobId){
     await JobApis.runJob(jobId)
-  }
+  },
+
+  async stopJob({ dispatch }, jobId) {
+    await JobApis.stopJob(jobId)
+  },
+
 }
 
 const mapArray2ObjByKey = (arr, key) => arr.reduce((prev, item) =>
@@ -125,9 +123,27 @@ const mutations = {
   [types.SET_WORKFLOW](state, {workflow}) {
     state.workflows = {
       ...state.workflows,
-      [workflow.id]: task
+      [workflow.id]: workflow
     }
   },
+
+  [types.SET_JOBS](state, {jobs,jobGroupId}) {
+    // state.jobs = {
+    //   ...state.jobs,
+    //   ...mapArray2ObjByKey(jobs, 'id')
+    // }
+    state.jobGroups={
+      ...state.jobGroups,
+      [jobGroupId]:jobs
+    }
+  },
+
+  // [types.SET_JOB_STATUS](state, {jobs}) {
+  //   state.jobs = {
+  //     ...state.jobs,
+  //     ...mapArray2ObjByKey(jobs, 'id')
+  //   }
+  // },
 
 }
 

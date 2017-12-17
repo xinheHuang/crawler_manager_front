@@ -5,14 +5,10 @@ import ExecutorGroupApis from '../../apis/executorGroup'
 import * as types from '../mutation-types'
 
 // initial state
-const state = {
-
-}
+const state = {}
 
 // getters
-const getters = {
-
-}
+const getters = {}
 
 // actions
 const actions = {
@@ -39,8 +35,6 @@ const actions = {
 
 // mutations
 const mutations = {
-
-
 }
 
 export default {

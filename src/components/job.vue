@@ -5,19 +5,19 @@
         <div style="display: flex">
           <div class="console">
             <p v-for="log in logs"
-               style="margin-bottom:10px;text-align: left" :class="log.error?'error':''">
+               style="margin-bottom:10px;text-align: left"
+               :class="log.error?'error':''">
               {{log.content}}
               <span style="display: block">===================</span>
             </p>
           </div>
           <div class="status">
             <span>任务状态：{{tempJob.status}}</span>
-            <button
-              @click="$emit('start')">开始任务
+            <button @click="$emit('stop')" v-if="tempJob.status=='RUNNING'">停止任务
             </button>
-            <!--<button v-show="tempJob.status=='start'"-->
-            <!--@click="$emit('stop')">停止任务-->
-            <!--</button>-->
+            <button
+              @click="$emit('start')" v-else>开始任务
+            </button>
           </div>
         </div>
       </div>
@@ -26,7 +26,7 @@
           <div>
             <span>任务名称</span>
             <input :disabled="!isEditing"
-                   v-model="tempJob.name" />
+                   v-model="tempJob.name"/>
           </div>
           <div>
             <span>执行组</span>
@@ -43,7 +43,8 @@
           </div>
           <div>
             <span>脚本</span>
-            <textarea :disabled="!isEditing" v-model="tempJob.script" />
+            <textarea :disabled="!isEditing"
+                      v-model="tempJob.script"/>
           </div>
 
           <!--op-->
@@ -68,7 +69,6 @@
 
 <script>
 
-
   export default {
     props: {
       job: Object,
@@ -91,7 +91,7 @@
         this.isEditing = true
       },
       cancelEdit() {
-        this.tempJob = { ...this.job }
+        this.tempJob = {...this.job}
         this.isEditing = false
       },
       async finishEdit() {
@@ -103,7 +103,7 @@
     watch: {
       job: {
         handler(job) {
-          this.tempJob = { ...job }
+          this.tempJob = {...job}
         },
         immediate: true
       }
@@ -136,7 +136,7 @@
           border: solid 1px gray;
           margin-right: 20px;
           flex-grow: 1;
-          .error{
+          .error {
             color: red
           }
         }

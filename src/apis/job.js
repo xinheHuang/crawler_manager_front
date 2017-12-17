@@ -72,6 +72,10 @@ export default {
 
   async runJob(jobId){
     return await httpUtil.post(`jobs/${jobId}/run`)
+  },
+
+  async stopJob(jobId){
+    return await httpUtil.post(`jobs/${jobId}/stop`)
   }
 
 }

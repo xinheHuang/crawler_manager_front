@@ -1,25 +1,29 @@
 <template>
   <div class="task-info">
-    <label for="name">名称：</label><input id="name" v-model="tempWorkFlow.name"
+    <label for="name">名称：</label><input id="name"
+                                        v-model="tempWorkFlow.name"
                                         :disabled="!isEditing">
 
     <input type="radio"
            id="circle"
            :disabled="!isEditing"
            :value="true"
-           v-model="tempWorkFlow.isCircleScheduled" /><label
+           v-model="tempWorkFlow.isCircleScheduled"/><label
     for="circle">周期执行</label>
     <input type="radio"
            id="single"
            :disabled="!isEditing"
            :value="false"
-           v-model="tempWorkFlow.isCircleScheduled" /><label
+           v-model="tempWorkFlow.isCircleScheduled"/><label
     for="single">单次执行</label>
 
-    <div v-if="tempWorkFlow.isCircleScheduled" style="display: inline-block">
-      <label for="interval" style="margin-left: 10px">间隔：</label>
+    <div v-if="tempWorkFlow.isCircleScheduled"
+         style="display: inline-block">
+      <label for="interval"
+             style="margin-left: 10px">间隔：</label>
       <span v-if="!isEditing"
-            id="interval">{{tempWorkFlow.runInterval ? getDayHourMinuteFromTime(tempWorkFlow.runInterval) : '未配置'}}</span>
+            id="interval">{{tempWorkFlow.runInterval ? getDayHourMinuteFromTime(tempWorkFlow.runInterval) :
+                            '未配置'}}</span>
       <div class="interval-input"
            v-else>
         <input v-model="tempWorkFlow.days">天
@@ -39,36 +43,45 @@
     <div class="op">
       <span style="margin-right: 20px">工作流状态：{{workflow.status}}</span>
       <button
+        v-show="workflow.status=='INIT' || workflow.status=='FAILED' || workflow.status=='STOPPED' || workflow.status=='FINISHED'"
         @click="startWorkFlow()">开始工作流
       </button>
-      <!--<button @click="stopWorkFlow()">停止工作流-->
-      <!--</button>-->
-      <button @click="resumeWorkFlow()">继续工作流
+      <button @click="stopWorkFlow()" v-show="workflow.status=='RUNNING'">停止工作流
+      </button>
+      <button v-show="workflow.status=='FAILED' || workflow.status=='STOPPED'" @click="resumeWorkFlow()">继续工作流
       </button>
     </div>
 
     <div>
-      <div v-for="(jobgroup,index) in jobgourps" :key="jobgroup.id" class="jobGroup">
+      <div v-for="(jobgroup,index) in jobgourps"
+           :key="jobgroup.id"
+           class="jobGroup">
 
         <div class="job-group-info">
           <div>
             <label for="jobGroupName">名称:</label>
             <input v-if="jobGroupEditing==jobgroup.id"
                    id="jobGroupName"
-                   v-model="tempJobGroup.name" />
+                   v-model="tempJobGroup.name"/>
             <span v-else>{{jobgroup.name}}</span>
 
             <label for="order">次序:</label>
-            <input v-if="jobGroupEditing==jobgroup.id" id="order" v-model="tempJobGroup.step" />
+            <input v-if="jobGroupEditing==jobgroup.id"
+                   id="order"
+                   v-model="tempJobGroup.step"/>
             <span v-else>{{jobgroup.step}}</span>
 
             <!--<label>状态:</label><span>{{jobgroup.status}}</span>-->
           </div>
           <div>
-            <button v-if="jobGroupEditing!=jobgroup.id" @click="goJobGroupEdit(jobgroup)">编辑
+            <button v-if="jobGroupEditing!=jobgroup.id"
+                    @click="goJobGroupEdit(jobgroup)">编辑
             </button>
-            <button v-if="jobGroupEditing==jobgroup.id" @click="cancelJobGroupEdit()">取消</button>
-            <button v-if="jobGroupEditing==jobgroup.id" @click="saveJobGroup(tempJobGroup,index)">
+            <button v-if="jobGroupEditing==jobgroup.id"
+                    @click="cancelJobGroupEdit()">取消
+            </button>
+            <button v-if="jobGroupEditing==jobgroup.id"
+                    @click="saveJobGroup(tempJobGroup,index)">
               确定
             </button>
           </div>
@@ -79,7 +92,9 @@
              :jobSave="saveJob"
              @remove="deleteJob(jobgroup.id,job.id)"
              @start="startJob(job.id)"
+             @stop="stopJob(job.id)"
              :logs="jobLogs[job.id]"
+             @clear="clearConsole(job.id)"
              v-for="job in jobGroupJobs[jobgroup.id]">
         </job>
         <button @click="createJob(jobgroup.id)">添加工作</button>
@@ -101,13 +116,13 @@
       return {
         tempWorkFlow: {},
         isEditing: false,
-        workflow: {},
+//        workflow: {},
         jobgourps: [],
         tempJobGroup: null,
-        jobGroupJobs: {},
+//        jobGroupJobs: {},
         jobGroupEditing: null,
-        executorGroups:[],
-        tempJob:{}
+        executorGroups: [],
+        tempJob: {}
       }
     },
     props: ['workflowId'],
@@ -115,6 +130,12 @@
       jobLogs() {
         return this.$store.state.messages.jobLogs
       },
+      workflow(){
+        return this.$store.state.job.workflows[this.workflowId] || {}
+      },
+      jobGroupJobs(){
+        return this.$store.state.job.jobGroups || {}
+      }
     },
     methods: {
       getDayHourMinuteFromTime(time) {
@@ -130,15 +151,15 @@
       },
 
       async getWorkFlow() {
-        this.workflow = await this.$store.dispatch('getWorkFlow', this.workflowId)
+        await this.$store.dispatch('getWorkFlow', this.workflowId)
         this.jobgourps = await this.$store.dispatch('getWorkFlowJobGroups', this.workflowId)
-        this.jobgourps.forEach(({ id }) => {
+        this.jobgourps.forEach(({id}) => {
           this.getJobGroupJobs(id)
         })
       },
 
       getTempWorkFlow(workflow = this.workflow) {
-        const { days, hours, minutes } = util.getDayHourMinute(workflow.runInterval)
+        const {days, hours, minutes} = util.getDayHourMinute(workflow.runInterval)
         return {
           ...workflow,
           isCircleScheduled: workflow.isCircleScheduled || false,
@@ -149,7 +170,7 @@
       },
 
       async saveWorkFlow() {
-        const { days, hours, minutes } = this.tempWorkFlow
+        const {days, hours, minutes} = this.tempWorkFlow
         this.tempWorkFlow.runInterval = util.getTimeFromDayHourMinute(days, hours, minutes)
         await this.$store.dispatch('saveWorkFlow', this.tempWorkFlow)
         this.isEditing = false
@@ -179,7 +200,7 @@
         try {
           await this.$store.dispatch('saveJobGroup', jobGroup)
           this.jobgourps[index] = jobGroup
-        }finally {
+        } finally {
           this.cancelJobGroupEdit()
         }
       },
@@ -189,37 +210,40 @@
       },
       goJobGroupEdit(jobGroup) {
         this.jobGroupEditing = jobGroup.id
-        this.tempJobGroup = { ...jobGroup }
+        this.tempJobGroup = {...jobGroup}
       },
 
-      async createJob(jobGroupId){
-        await this.$store.dispatch('createJob',{
+      async createJob(jobGroupId) {
+        await this.$store.dispatch('createJob', {
           jobGroupId,
-          executorGroup:{
-            name:'default'
+          executorGroup: {
+            name: 'default'
           }
         })
         this.getJobGroupJobs(jobGroupId)
       },
-      async startJob(jobId){
-        await this.$store.dispatch('startJob',jobId)
+      async startJob(jobId) {
+        await this.$store.dispatch('startJob', jobId)
       },
-      async saveJob(job){
-        await this.$store.dispatch('saveJob',job)
+      async stopJob(jobId) {
+        await this.$store.dispatch('stopJob', jobId)
+      },
+      async saveJob(job) {
+        await this.$store.dispatch('saveJob', job)
         this.getJobGroupJobs(job.jobGroupId)
       },
 
-      async deleteJob(jobGroupId,jobId){
-        await this.$store.dispatch('deleteJob',jobId)
+      async deleteJob(jobGroupId, jobId) {
+        await this.$store.dispatch('deleteJob', jobId)
         this.getJobGroupJobs(jobGroupId)
       },
 
-      async getJobGroupJobs(jobGroupId){
-        this.$set(this.jobGroupJobs,jobGroupId,await this.$store.dispatch('getJobGroupJobs', jobGroupId))
+      async getJobGroupJobs(jobGroupId) {
+        this.$set(this.jobGroupJobs, jobGroupId, await this.$store.dispatch('getJobGroupJobs', jobGroupId))
       },
 
-      clearConsole(subtaskId) {
-        this.$store.commit(types.CLEAR_SUBTASK_MESSAGES, subtaskId)
+      clearConsole(jobId) {
+        this.$store.commit(types.CLEAR_JOB_MESSAGES, jobId)
       }
     },
     components: {
@@ -229,7 +253,8 @@
       workflow: {
         handler(workflow) {
           console.log(workflow)
-          this.tempWorkFlow = this.getTempWorkFlow(workflow)
+          if (workflow)
+            this.tempWorkFlow = this.getTempWorkFlow(workflow)
         },
         immediate: true,
         deep: true,

@@ -5,9 +5,10 @@
             class="task"
             :workflow="workflow"
             :key="workflow.id"
-            @startTask="startWorkFlow(workflow.id)"
-            @stopTask="stopWorkFlow(workflow.id)"
-            @deleteTask="removeWorkFlow(workflow.id)"
+            @startWorkFlow="startWorkFlow(workflow.id)"
+            @stopWorkFlow="stopWorkFlow(workflow.id)"
+                @resumeWorkFlow="resumeWorkFlow(workflow.id)"
+            @removeWorkFlow="removeWorkFlow(workflow.id)"
             @clear="clearConsole(workflow.id)"
             :logs="getMessageName(workFlowLogs[workflow.id])"
       />
@@ -27,16 +28,16 @@
     },
     data() {
       return {
-        workflows: [],
+//        workflows: [],
       }
     },
     computed: {
       workFlowLogs() {
         return this.$store.state.messages.workFlowLogs
       },
-//      tasks() {
-//        return this.$store.state.tasks.tasks
-//      },
+      workflows() {
+        return this.$store.state.job.workflows
+      },
 
     },
     methods: {
@@ -68,6 +69,7 @@
         }
       },
       async startWorkFlow(workflowId) {
+        console.log('start')
         await this.$store.dispatch('startWorkFlow', workflowId)
       },
 
@@ -80,10 +82,10 @@
         this.getWorkFlows();
       },
       async getWorkFlows(){
-        this.workflows = await this.$store.dispatch('getWorkFlows')
+        this.$store.dispatch('getWorkFlows')
       },
-      clearConsole(taskId) {
-        this.$store.commit(types.CLEAR_TASK_MESSAGES, taskId)
+      clearConsole(workFlowId) {
+        this.$store.commit(types.CLEAR_WORKFLOW_MESSAGES, workFlowId)
       }
     },
     mounted() {
