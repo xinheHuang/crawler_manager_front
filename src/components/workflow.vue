@@ -1,115 +1,97 @@
 <template>
-  <div>
-    <div style="padding: 20px;height: 100%;display: flex;flex-direction: column; ">
-      <div class="title">
-        <span class="name">工作流名称: {{workflow.name}}</span>
-        <span class="info">工作流间隔：{{getInterval(workflow.interval)}}</span>
+  <b-card bg-variant="light">
+    <div class="workflow">
+      <div class="detail" @click>
+        <b-badge v-b-tooltip.hover title="工作流名称">{{workflow.name}}</b-badge>
+        <b-badge v-b-tooltip.hover title="工作流间隔">{{getInterval(workflow.interval)}}</b-badge>
+        <b-badge v-b-tooltip.hover title="工作流状态" :variant="getStatusVariant(workflow.status)">{{workflow.status}}</b-badge>
       </div>
-      <div class="content">
-        <div class="console">
-          <p v-for="log in logs"
-             style="margin-bottom:10px;text-align: left"
-            :class="log.error?'error':''"
-          >
-            <span style="font-weight: bold">{{log.jobName}}:</span>
-            {{log.content}}
-            <span style="display: block">===================</span>
-          </p>
-
-        </div>
-        <div class="op">
-          <span>任务状态：{{workflow.status}}</span>
-          <button
-            v-show="workflow.status=='INIT' || workflow.status=='FAILED' || workflow.status=='STOPPED' || workflow.status=='FINISHED'"
-            @click="$emit('startWorkFlow')">开始工作流
-          </button>
-          <button @click="$emit('stopWorkFlow')" v-show="workflow.status=='RUNNING'">停止工作流
-          </button>
-          <button v-show="workflow.status=='FAILED' || workflow.status=='STOPPED'" @click="$emit('resumeWorkFlow')">继续工作流
-          </button>
-
-
-          <button @click="configTask()">查看工作流详情</button>
-          <!--todo-->
-          <button v-show="workflow.status!=='start'"
-                  @click="$emit('removeWorkFlow')">删除工作流
-          </button>
-          <button @click="$emit('clear')">清空console</button>
-        </div>
+      <div class="op">
+        <b-btn
+          variant="primary"
+          size="sm"
+          v-show="workflow.status=='INIT' || workflow.status=='FAILED' || workflow.status=='STOPPED' || workflow.status=='FINISHED'"
+          @click="$emit('startWorkFlow')">开始工作流
+        </b-btn>
+        <b-btn
+          variant="danger"
+          size="sm"
+          @click="$emit('stopWorkFlow')"
+          v-show="workflow.status=='RUNNING'">停止工作流
+        </b-btn>
+        <b-btn
+          variant="warning"
+          size="sm"
+          v-show="workflow.status=='FAILED' || workflow.status=='STOPPED'"
+          @click="$emit('resumeWorkFlow')">继续工作流
+        </b-btn>
+        <b-btn :variant="!showLog?'info':'secondary'" :size="'sm'"
+               @click="showLog = !showLog"
+               :class="showLog ? 'collapsed' : null"
+               :aria-controls="`workflow${workflow.id}`"
+               :aria-expanded="showLog ? 'true' : 'false'">
+          {{showLog ? '隐藏' : '显示'}}日志
+        </b-btn>
+        <b-btn variant="danger" size="sm" @click="$emit('removeWorkFlow')">
+          <icon name="trash"></icon>
+        </b-btn>
+        <b-btn size="sm" @click="$emit('configWorkFlow')">
+          <icon name="cog"></icon>
+        </b-btn>
       </div>
     </div>
-  </div>
+    <b-collapse :id="`workflow${workflow.id}`" class="mt-2" v-model="showLog">
+      <log :logs="logs" @clear="$emit('clear')"></log>
+    </b-collapse>
+  </b-card>
 </template>
 
 <script>
   import util from '../utils'
-
+  import log from '../components/log.vue'
   export default {
     props: {
       workflow: Object,
       logs: Array
     },
+    data() {
+      return {
+        showLog: true
+      }
+    },
     methods: {
+      getStatusVariant:util.getStatusVariant,
       getInterval(time) {
         return !time ? '未配置' : util.getDayHourMinuteFromTime(time)
       },
-      configTask() {
-        this.$router.push({path: `/workflow/${this.workflow.id}`})
-      },
-
     },
+    components:{
+      log
+    }
   }
 
 </script>
 
 <style scoped
        lang="less">
-  .title {
+  .workflow {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
-    > span {
+    align-items: center;
+    > * {
+      display: flex;
+      align-items: center;
+      > * {
+        margin: 0 10px
+      }
+    }
+    .detail {
       font-size: 24px;
     }
-    .name {
-
+    .op {
     }
   }
 
-  .content {
-    border: solid 1px gray;
-    padding: 20px;
-    display: flex;
-    width: 100%;
-    flex-grow: 1;
-    align-items: center;
-  }
-
-  .console {
-    align-self: stretch;
-    overflow: auto;
-    flex-grow: 1;
-    border: solid 1px gray;
-    margin-right: 30px;
-    .error{
-      color:red
-    }
-  }
-
-  .op {
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    span {
-      margin-bottom: 20px;
-      font-size: 20px;
-    }
-  }
-
-  .op button {
-    margin: 10px 0;
-    font-size: 20px;
-  }
 
 </style>
+

@@ -21,45 +21,47 @@ const getters = {}
 let client
 // actions
 const actions = {
-  connect({commit, dispatch,}) {
+  connect({ commit, dispatch, }) {
     // var socket = new SockJS('/job/api/v1/job-websocket');
     client = Stomp.client('ws://58.87.75.73:8888/job/api/v1/job-websocket/websocket')
     client.connect({}, (frame) => {
-                     commit(types.CHANGE_SOCKET_STATUS, true)
-                     console.log('Connected: ' + frame)
-                     client.subscribe('/topic/log', function ({body}) {
-                       try {
-                         commit(types.LOG_MESSAGE_RECEIVE, JSON.parse(body))
-                       } catch (e) {
-                         console.log(e)
-                       }
-                     })
+        commit(types.CHANGE_SOCKET_STATUS, true)
+        console.log('Connected: ' + frame)
+        client.subscribe('/topic/log', function (x) {
+          console.log(x)
+          const { body, headers } = x
+          try {
+            commit(types.LOG_MESSAGE_RECEIVE, { id: headers['message-id'], body: JSON.parse(body) })
+          } catch (e) {
+            console.log(e)
+          }
+        })
 
-                     //todo
-                     client.subscribe('/topic/sysinfo', function ({body}) {
-                       try {
-                         commit(types.EXECUTOR_MESSAGE_RECEIVE, JSON.parse(body))
-                       } catch (e) {
-                         console.log(e)
-                       }
-                     })
+        //todo
+        client.subscribe('/topic/sysinfo', function ({ body }) {
+          try {
+            commit(types.EXECUTOR_MESSAGE_RECEIVE, JSON.parse(body))
+          } catch (e) {
+            console.log(e)
+          }
+        })
 
 
-                     client.subscribe('/topic/status', function ({body}) {
-                       try {
-                         const {jobGroupId, workFlowId} = JSON.parse(body)
-                         dispatch('getWorkFlow', workFlowId)
-                         dispatch('getJobGroupJobs', jobGroupId)
-                       } catch (e) {
-                         console.log(e)
-                       }
-                     })
-                   }
+        client.subscribe('/topic/status', function ({ body }) {
+          try {
+            const { jobGroupId, workFlowId } = JSON.parse(body)
+            // dispatch('getWorkFlow', workFlowId)
+            dispatch('getJobGroupJobs', jobGroupId)
+          } catch (e) {
+            console.log(e)
+          }
+        })
+      }
     )
 
   },
 
-  close({commit}) {
+  close({ commit }) {
     if (client) {
       client.disconnect(() => {
         console.log('disconnect!')
@@ -86,35 +88,37 @@ const mutations = {
 
   [types.CLEAR_JOB_MESSAGES](state, jobId) {
     delete  state.jobLogs[jobId]
-    state.jobLogs = {...state.jobLogs}
+    state.jobLogs = { ...state.jobLogs }
   },
 
   [types.CLEAR_WORKFLOW_MESSAGES](state, workFlowId) {
     delete  state.workFlowLogs[workFlowId]
-    state.workFlowLogs = {...state.workFlowLogs}
+    state.workFlowLogs = { ...state.workFlowLogs }
   },
 
-  [types.LOG_MESSAGE_RECEIVE](state, {jobId, workFlowId, error, content}) {
+  [types.LOG_MESSAGE_RECEIVE](state, { id, body }) {
+    const { jobId, workFlowId, error, content } = body
     const prevMessages = state.jobLogs[jobId] || []
     prevMessages.unshift({
-                           content,
-                           error
-                         })
+      id,
+      content,
+      error
+    })
     if (prevMessages.length > MAX_LOG_NUMBER) {
       prevMessages.pop()
     }
-    state.jobLogs = {...state.jobLogs, [jobId]: prevMessages}
+    state.jobLogs = { ...state.jobLogs, [jobId]: prevMessages }
 
 
     const prevWorkFlowMessages = state.workFlowLogs[workFlowId] || []
-    prevWorkFlowMessages.unshift({jobId, content, error})
+    prevWorkFlowMessages.unshift({ id, jobId, content, error })
     if (prevWorkFlowMessages.length > MAX_LOG_NUMBER) {
       prevWorkFlowMessages.pop()
     }
-    state.workFlowLogs = {...state.workFlowLogs, [workFlowId]: prevWorkFlowMessages}
+    state.workFlowLogs = { ...state.workFlowLogs, [workFlowId]: prevWorkFlowMessages }
   },
 
-  [types.EXECUTOR_MESSAGE_RECEIVE](state, {executorName, ...others}) {
+  [types.EXECUTOR_MESSAGE_RECEIVE](state, { executorName, ...others }) {
     state.executorGroupStatus = {
       ...state.executorGroupStatus,
       [executorName]: {

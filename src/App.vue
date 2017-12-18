@@ -38,8 +38,12 @@
 </script>
 
 <style scoped>
+  #app{
+    height: 100%;
+  }
   .main {
     /*max-width: 1280px;*/
+    height: 100%;
     margin: 0 auto;
     text-align: center;;
   }

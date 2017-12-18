@@ -32,5 +32,16 @@ export default {
   },
   getTimeFromDayHourMinute(days = 0, hours = 0, minutes = 0) {
     return minutes * 60 + hours * 3600 + days * 86400
-  }
+  },
+  getStatusVariant(status) {
+    switch (status) {
+    case 'RUNNING':
+      return 'success'
+    case 'FAILED':
+    case 'STOPPED':
+      return 'danger'
+    default:
+      return 'dark'
+    }
+  },
 }

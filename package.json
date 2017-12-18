@@ -15,12 +15,16 @@
   },
   "dependencies": {
     "axios": "^0.17.1",
+    "bootstrap": "^4.0.0-beta.2",
+    "bootstrap-vue": "^1.4.0",
     "qs": "^6.5.1",
     "sockjs-client": "^1.1.4",
     "stompjs": "^2.3.3",
     "sweetalert": "^2.0.8",
     "vue": "^2.4.4",
+    "vue-awesome": "^2.3.4",
     "vue-router": "^3.0.1",
+    "vuedraggable": "^2.15.0",
     "vuex": "^3.0.1"
   },
   "devDependencies": {

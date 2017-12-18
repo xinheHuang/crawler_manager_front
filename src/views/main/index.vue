@@ -1,63 +1,57 @@
 <template>
   <div id="main">
-    <!--<h1>任务管理器</h1>-->
-    <div class="nav">
-      <span class="nav-item" v-for="route in routes">
-        <router-link :to="{name:route.name}" class="nav-link" active-class="active">
-          {{ route.title }}
-        </router-link>
-      </span>
-    </div>
-    <div class="content">
+    <b-navbar toggleable="md" type="dark" variant="dark">
+
+      <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
+
+      <b-navbar-brand href="#">爬虫管理系统</b-navbar-brand>
+
+      <b-collapse is-nav id="nav_collapse">
+
+        <b-navbar-nav>
+          <b-nav-item v-for="route in routes"><b-link :to="{name:route.name}">{{route.title}}</b-link></b-nav-item>
+        </b-navbar-nav>
+
+      </b-collapse>
+    </b-navbar>
+    <b-container>
       <!--<keep-alive>-->
-      <router-view></router-view>
+      <router-view style=" padding: 20px 0;"></router-view>
       <!--</keep-alive>-->
-    </div>
+    </b-container>
   </div>
 </template>
 <script>
   export default {
     data() {
       return {
-        routes: [{ name: 'workflows', title: '工作流' }, { name: 'executorGroups', title: '执行组' },]
+        routes: [{ name: 'workflows', title: '工作流' }, { name: 'executorGroups', title: '执行组' },],
+        timer: null,
+        refreshInterval: 1000,
       }
+    },
+    methods: {
+      async refreshWorkFlows() {
+        console.log('get workflow')
+        await this.$store.dispatch('getWorkFlows')
+        this.timer = setTimeout(() => {
+          this.refreshWorkFlows()
+        }, this.refreshInterval)
+      },
     },
     mounted() {
       this.$store.dispatch('connect')
-
-//      this.$store.dispatch('getWorkFlows')
-//      this.$store.dispatch('getServers')
-//      this.$store.dispatch('getScripts')
+      this.refreshWorkFlows()
+    },
+    destroyed() {
+      this.$store.dispatch('close')
+      if (this.timer) {
+        clearTimeout(this.timer)
+        this.timer = null
+      }
     }
   }
 </script>
 <style lang="less">
-  #main {
-    /*padding-bottom: 20px;*/
-    height: 100%;
-  }
-
-  .content {
-    max-width: 1280px;
-    margin: 0 auto;
-  }
-
-  .nav {
-    width: 100%;
-    background: lightgrey;
-    display: flex;
-    .nav-item {
-      padding: 5px;
-      .nav-link {
-        font-size: 20px;
-        text-decoration: none;
-        color: gray;
-        &.active {
-          color: black;
-          cursor: not-allowed;
-        }
-      }
-    }
-  }
 
 </style>

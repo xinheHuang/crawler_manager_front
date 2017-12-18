@@ -51,7 +51,7 @@ export default {
   },
 
   async deleteJobGroup(jobGroupId){
-    return await httpUtil.delete(`job/groups/${jobGroup.id}`)
+    return await httpUtil.delete(`job/groups/${jobGroupId}`)
   },
 
   async getJobGroupJobs(jobGroupId){
