@@ -2,7 +2,7 @@
   <b-container id="login">
     <b-card title="爬虫管理系统"
             style="min-width: 350px;">
-      <b-form @submit="login">
+      <b-form @keyup.enter="login">
         <b-form-group id="exampleInputGroup1">
           <b-form-input id="exampleInput1"
                         type="text"
@@ -19,20 +19,10 @@
                         placeholder="密码">
           </b-form-input>
         </b-form-group>
-        <b-button type="submit" variant="primary" :disabled="isLogin">登录{{isLogin ? '中...' : ''}}</b-button>
+        <b-button @click="login()" variant="primary" :disabled="isLogin">登录{{isLogin ? '中...' : ''}}</b-button>
       </b-form>
     </b-card>
   </b-container>
-  <!---->
-  <!--<div id="login"  @keyup.enter="login">-->
-  <!--<label>用户名</label>-->
-  <!--<input v-model="username"/>-->
-  <!--<label>密码</label>-->
-  <!--<input v-model="password"/>-->
-  <!--<button @click="login"-->
-  <!--:diabled="isLogin">登录{{isLogin ? '中' : ''}}-->
-  <!--</button>-->
-  <!--</div>-->
 </template>
 <script>
   import EventBus from '../../eventBus'
@@ -60,6 +50,7 @@
         this.isLogin = true
         try {
           await this.$store.dispatch('login', qs.stringify({ username, password }))
+          console.log('redirect',this.$route.query.redirect)
           this.$router.push(this.$route.query.redirect || '/')
         }
         catch (e) {

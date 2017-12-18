@@ -36,8 +36,9 @@
           </b-btn>
         </div>
       </div>
-      <b-collapse :id="`jobGroup${jobGroup.id}`" class="mt-2" v-model="showJobs">
+      <b-collapse :id="`jobGroup${jobGroup.id}`"  v-model="showJobs">
         <job
+          style="margin:20px 0"
           v-for="job in jobGroupJobs[jobGroup.id]"
           :key="job.id"
           :job="job"
